@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
-import { Stethoscope, Mail, Lock, AlertCircle } from 'lucide-react';
+import { Stethoscope, Mail, Lock, AlertCircle, Eye, EyeOff, ArrowRight } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -13,8 +13,9 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-  // Redirect if already authenticated (using useEffect to avoid render-time redirects)
+  // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated && !authLoading) {
       router.push('/patients');
@@ -28,7 +29,6 @@ export default function LoginPage() {
 
     try {
       await login(email, password);
-      // Redirect immediately - middleware will validate the cookie
       router.push('/patients');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
@@ -37,52 +37,65 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-brand-teal to-brand-blue flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="flex justify-center mb-8">
-          <div className="flex items-center space-x-3">
-            <div className="bg-brand-red p-3 rounded-xl">
-              <Stethoscope className="h-8 w-8 text-white" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-extrabold text-white">
-                Faith <span className="text-brand-yellow">Clinic</span>
-              </h1>
-              <p className="text-brand-yellow text-sm">Patient Management</p>
+    <div className="min-h-screen relative flex items-center justify-center px-4 overflow-hidden">
+      {/* Lighter Gradient Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-teal-50 via-emerald-50 to-yellow-50"></div>
+      <div className="absolute inset-0 bg-gradient-to-tl from-yellow-100/50 via-transparent to-teal-100/50"></div>
+      
+      {/* Subtle Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-brand-yellow/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-1/2 left-1/4 w-96 h-96 bg-brand-teal/10 rounded-full blur-3xl animate-pulse delay-700"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-brand-yellow/15 rounded-full blur-3xl animate-pulse delay-1000"></div>
+      </div>
+
+      <div className="w-full max-w-md relative z-10">
+        {/* Logo Section */}
+        <div className="text-center mb-8 animate-fadeIn">
+          <div className="flex justify-center mb-4">
+            <div className="bg-white p-4 rounded-2xl shadow-2xl">
+              <div className="bg-gradient-to-br from-brand-red to-brand-red/80 p-3 rounded-xl">
+                <Stethoscope className="h-10 w-10 text-white" />
+              </div>
             </div>
           </div>
+          <h1 className="text-4xl font-extrabold text-brand-teal mb-2">
+            Faith <span className="text-brand-yellow">Clinic</span>
+          </h1>
+          <p className="text-gray-600 text-sm font-medium">Patient Management System</p>
         </div>
 
         {/* Login Card */}
-        <div className="bg-white rounded-2xl shadow-2xl p-8">
-          <h2 className="text-2xl font-bold text-brand-teal mb-2">Welcome Back</h2>
-          <p className="text-gray-600 mb-6">Sign in to your account</p>
+        <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20 animate-slideUp">
+          <div className="mb-6">
+            <h2 className="text-3xl font-bold text-brand-teal mb-2">Welcome Back</h2>
+            <p className="text-gray-600">Sign in to access your dashboard</p>
+          </div>
 
           {/* Error Message */}
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded flex items-start space-x-3">
+            <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg flex items-start space-x-3 animate-fadeIn">
               <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
-              <p className="text-red-700 text-sm">{error}</p>
+              <p className="text-red-700 text-sm font-medium">{error}</p>
             </div>
           )}
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Email Address
               </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+              <div className="relative group">
+                <Mail className="absolute left-4 top-3.5 h-5 w-5 text-gray-400 group-focus-within:text-brand-teal transition-colors" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="doctor@faithclinic.com"
+                  placeholder="draishwaryaradia@gmail.com"
                   autoComplete="email"
-                  className="w-full pl-10 pr-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-brand-teal transition"
+                  className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-brand-teal focus:ring-4 focus:ring-brand-teal/10 transition-all"
                   required
                 />
               </div>
@@ -90,20 +103,27 @@ export default function LoginPage() {
 
             {/* Password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Password
               </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+              <div className="relative group">
+                <Lock className="absolute left-4 top-3.5 h-5 w-5 text-gray-400 group-focus-within:text-brand-teal transition-colors" />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   autoComplete="current-password"
-                  className="w-full pl-10 pr-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-brand-teal transition"
+                  className="w-full pl-12 pr-12 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-brand-teal focus:ring-4 focus:ring-brand-teal/10 transition-all"
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-3.5 text-gray-400 hover:text-brand-teal transition-colors"
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
               </div>
             </div>
 
@@ -111,34 +131,30 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-brand-teal text-white py-2 rounded-lg font-semibold hover:bg-brand-teal/90 transition disabled:opacity-50 disabled:cursor-not-allowed mt-6"
+              className="w-full bg-gradient-to-r from-brand-teal to-brand-teal/90 text-white py-3.5 rounded-xl font-bold hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 mt-6 flex items-center justify-center space-x-2"
             >
-              {loading ? 'Signing in...' : 'Sign In'}
+              <span>{loading ? 'Signing in...' : 'Sign In'}</span>
+              {!loading && <ArrowRight className="h-5 w-5" />}
             </button>
           </form>
 
-          {/* Divider - HIDDEN: Uncomment to show registration link */}
-          {/* <div className="my-6 flex items-center">
-            <div className="flex-1 border-t-2 border-gray-200"></div>
-            <span className="px-3 text-gray-500 text-sm">or</span>
-            <div className="flex-1 border-t-2 border-gray-200"></div>
-          </div> */}
-
-          {/* Register Link - HIDDEN: Uncomment to allow new user registration */}
-          {/* <p className="text-center text-gray-600 text-sm">
-            Don't have an account?{' '}
-            <Link href="/auth/register" className="text-brand-teal font-semibold hover:underline">
-              Create one
-            </Link>
-          </p> */}
+          {/* Additional Info */}
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <p className="text-center text-sm text-gray-600">
+              <span className="inline-flex items-center">
+                <Lock className="h-4 w-4 mr-1" />
+                Secure login with encrypted credentials
+              </span>
+            </p>
+          </div>
         </div>
 
-        {/* Demo Credentials - HIDDEN: Uncomment to show demo instructions */}
-        {/* <div className="mt-6 p-4 bg-white/20 rounded-lg backdrop-blur">
-          <p className="text-white text-xs text-center">
-            Demo: Use any email and password (min 6 chars) to register
+        {/* Footer */}
+        <div className="mt-6 text-center">
+          <p className="text-gray-600 text-sm">
+            © {new Date().getFullYear()} Faith Clinic. All rights reserved.
           </p>
-        </div> */}
+        </div>
       </div>
     </div>
   );

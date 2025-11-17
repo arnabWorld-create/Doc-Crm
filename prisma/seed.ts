@@ -11,13 +11,13 @@ async function main() {
   await prisma.patient.deleteMany();
   await prisma.user.deleteMany();
 
-  // Create default user
-  const hashedPassword = await bcrypt.hash('password123', 10);
+  // Create default user - Dr. Aishwarya Radia
+  const hashedPassword = await bcrypt.hash('faith229944', 10);
   const user = await prisma.user.create({
     data: {
-      email: 'doctor@faithclinic.com',
+      email: 'draishwaryaradia@gmail.com',
       password: hashedPassword,
-      name: 'Dr. Faith Clinic',
+      name: 'Dr. Aishwarya Radia',
       role: 'doctor',
       isActive: true,
     },
