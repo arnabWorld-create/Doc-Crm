@@ -44,14 +44,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Update last login
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { lastLogin: new Date() },
-    });
-
     // Generate token
     const token = generateToken(user.id, user.email);
+
+    // Update last login in background (don't wait for it)
+    prisma.user.update({
+      where: { id: user.id },
+      data: { lastLogin: new Date() },
+    }).catch(err => console.error('Failed to update lastLogin:', err));
 
     // Create response
     const response = NextResponse.json(
