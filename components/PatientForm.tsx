@@ -99,22 +99,19 @@ const PatientForm: React.FC<PatientFormProps> = ({ defaultValues, appointmentId 
     const method = isEditing ? 'PUT' : 'POST';
 
     try {
-      // Save custom medicines before submitting
+      // Save custom medicines in background (don't wait for it)
       if (formData.medicines) {
         const medicines = formData.medicines.split('\n').map(m => m.trim()).filter(m => m);
-        for (const medicine of medicines) {
-          if (medicine) {
-            try {
-              await fetch('/api/medicines', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: medicine }),
-              });
-            } catch (error) {
-              console.error('Failed to save medicine:', medicine, error);
-            }
-          }
-        }
+        // Fire and forget - save medicines in background without blocking
+        Promise.all(
+          medicines.map(medicine => 
+            medicine ? fetch('/api/medicines', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name: medicine }),
+            }).catch(err => console.error('Failed to save medicine:', medicine, err)) : Promise.resolve()
+          )
+        ).catch(err => console.error('Failed to save some medicines:', err));
       }
 
       // Clean up the data - remove undefined values and convert empty strings to null
@@ -153,17 +150,16 @@ const PatientForm: React.FC<PatientFormProps> = ({ defaultValues, appointmentId 
               tempPatientContact: null,
             }),
           });
-          // Redirect to the appointment
+          // Redirect to the appointment immediately
           router.push(`/appointments/${appointmentId}`);
-          router.refresh();
           return;
         } catch (error) {
           console.error('Failed to link appointment:', error);
         }
       }
       
+      // Redirect immediately without waiting for refresh
       router.push('/patients');
-      router.refresh(); // Important to see the changes in the list
     } catch (err) {
       console.error('Submit error:', err);
       setError(err instanceof Error ? err.message : 'An unknown error occurred.');
