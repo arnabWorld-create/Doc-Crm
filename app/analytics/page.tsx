@@ -1,6 +1,10 @@
 import prisma from '@/lib/prisma';
 import { Users, Calendar, TrendingUp, Activity, UserCheck, Clock, AlertCircle, CheckCircle, Stethoscope } from 'lucide-react';
 
+// Force dynamic rendering - this page needs real-time data
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 const AnalyticsPage = async () => {
   // Fetch analytics data
   const totalPatients = await prisma.patient.count();

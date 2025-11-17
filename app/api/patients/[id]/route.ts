@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { requireAuth } from '@/lib/api-auth';
 
+export const dynamic = 'force-dynamic';
+
 // GET single patient with all visits
 export async function GET(
   req: NextRequest,

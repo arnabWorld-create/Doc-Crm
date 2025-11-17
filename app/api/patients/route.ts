@@ -3,6 +3,8 @@ import prisma from '@/lib/prisma';
 import { generatePatientId } from '@/lib/patientUtils';
 import { requireAuth } from '@/lib/api-auth';
 
+export const dynamic = 'force-dynamic';
+
 // GET all patients
 export async function GET(req: NextRequest) {
   // Verify authentication
