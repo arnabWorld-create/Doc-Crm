@@ -1,0 +1,162 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  password      String   // hashed password
+  name          String
+  role          String   @default("doctor") // doctor, admin, staff
+  isActive      Boolean  @default(true)
+  lastLogin     DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Patient {
+  id                String        @id @default(cuid())
+  patientId         String        @unique // FC-001, FC-002, etc.
+  name              String
+  age               Int?
+  gender            String?
+  contact           String?
+  address           String?
+  bloodGroup        String?
+  allergies         String?
+  chronicConditions String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  
+  visits            Visit[]
+  appointments      Appointment[]
+
+  @@map("patients")
+}
+
+model Visit {
+  id                String    @id @default(cuid())
+  patientId         String
+  patient           Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  
+  visitDate         DateTime  @default(now())
+  visitType         String    @default("Consultation") // Consultation, Follow-up, Emergency
+  
+  // Vitals
+  temp              Float?
+  spo2              Int?
+  pulse             Int?
+  bloodPressure     String?
+  weight            Float?
+  
+  // Medical Details
+  chiefComplaint    String?   // Main reason for visit
+  signs             String?   // Signs & Symptoms
+  investigations    String?
+  diagnosis         String?   // Diagnosis/Condition
+  treatment         String?
+  medicines         String?
+  notes             String?   // Additional notes
+  
+  // Files and referrals
+  reports           String?   // JSON string for file uploads
+  referredTo        String?
+  
+  // Follow-up
+  followUpDate      DateTime?
+  followUpNotes     String?
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@map("visits")
+  @@index([patientId])
+  @@index([visitDate])
+}
+
+model CustomMedicine {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  usageCount  Int      @default(1)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("custom_medicines")
+}
+
+model ClinicProfile {
+  id                String   @id @default(cuid())
+  
+  // Clinic Information
+  clinicName        String   @default("Faith Clinic")
+  address           String?
+  city              String?
+  state             String?
+  pincode           String?
+  phone             String?
+  email             String?
+  website           String?
+  
+  // Clinic Hours
+  workingHours      String?  @default("Mon-Sat: 9:00 AM - 8:00 PM | Sun: 10:00 AM - 2:00 PM")
+  
+  // Doctor Information
+  doctorName        String?
+  doctorQualification String?
+  registrationNumber String?
+  specialization    String?
+  
+  // Additional
+  logo              String?  // URL to logo image
+  tagline           String?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("clinic_profile")
+}
+
+model Appointment {
+  id                String   @id @default(cuid())
+  patientId         String?
+  patient           Patient? @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  
+  // For walk-in/new patients (before patient record is created)
+  tempPatientName   String?
+  tempPatientContact String?
+  
+  // Appointment Details
+  appointmentDate   DateTime
+  appointmentTime   String   // e.g., "10:00 AM", "2:30 PM"
+  duration          Int      @default(30) // Duration in minutes
+  appointmentType   String   @default("Consultation") // Consultation, Follow-up, Check-up, Emergency
+  
+  // Status
+  status            String   @default("Scheduled") // Scheduled, Confirmed, Completed, Cancelled, No-Show
+  
+  // Additional Info
+  reason            String?  // Reason for appointment
+  notes             String?  // Internal notes
+  reminderSent      Boolean  @default(false)
+  
+  // Linked Visit (if appointment is completed)
+  visitId           String?  @unique
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("appointments")
+  @@index([patientId])
+  @@index([appointmentDate])
+  @@index([status])
+}
