@@ -6,7 +6,8 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-producti
 const JWT_EXPIRY = '7d';
 
 export async function hashPassword(password: string): Promise<string> {
-  const salt = await bcrypt.genSalt(10);
+  // Using 8 rounds for faster performance while maintaining security
+  const salt = await bcrypt.genSalt(8);
   return bcrypt.hash(password, salt);
 }
 

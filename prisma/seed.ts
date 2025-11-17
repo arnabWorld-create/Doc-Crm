@@ -12,7 +12,7 @@ async function main() {
   await prisma.user.deleteMany();
 
   // Create default user - Dr. Aishwarya Radia
-  const hashedPassword = await bcrypt.hash('faith229944', 10);
+  const hashedPassword = await bcrypt.hash('faith229944', 8);
   const user = await prisma.user.create({
     data: {
       email: 'draishwaryaradia@gmail.com',
