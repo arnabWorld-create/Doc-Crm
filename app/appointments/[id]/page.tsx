@@ -254,6 +254,24 @@ export default function AppointmentDetailPage({ params }: AppointmentDetailPageP
         </div>
       </div>
 
+      {/* Add Visit for Completed Appointments */}
+      {appointment.status === 'Completed' && appointment.patient && (
+        <div className="bg-gradient-to-br from-brand-teal/10 to-brand-teal/5 p-6 rounded-xl border-2 border-brand-teal/30">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-bold text-brand-teal mb-2">Appointment Completed</h3>
+              <p className="text-sm text-gray-600">Add consultation details for this appointment</p>
+            </div>
+            <Link href={`/patients/${appointment.patient.id}/visit/new?appointmentId=${appointment.id}`}>
+              <button className="flex items-center space-x-2 px-6 py-3 bg-brand-teal text-white rounded-lg hover:bg-brand-teal/90 transition-all shadow-lg hover:shadow-xl">
+                <Plus className="h-5 w-5" />
+                <span className="font-semibold">Add Visit Record</span>
+              </button>
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* Status Actions */}
       {appointment.status !== 'Completed' && appointment.status !== 'Cancelled' && (
         <div className="bg-white p-6 rounded-xl shadow-lg border-2 border-gray-100">
