@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { Stethoscope, Users, Activity, Calendar, Settings, CalendarCheck, LogOut } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const Navbar = () => {
   const { user, logout, loading, isAuthenticated } = useAuth();
@@ -12,9 +12,10 @@ const Navbar = () => {
   const pathname = usePathname();
   const [showDropdown, setShowDropdown] = useState(false);
   const [doctorName, setDoctorName] = useState<string>('');
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Fetch doctor name from clinic profile
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchDoctorName = async () => {
       try {
         const response = await fetch('/api/clinic-profile');
@@ -33,6 +34,23 @@ const Navbar = () => {
       fetchDoctorName();
     }
   }, [isAuthenticated, user]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+
+    if (showDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showDropdown]);
 
   const handleLogout = async () => {
     await logout();
@@ -81,7 +99,7 @@ const Navbar = () => {
               </Link>
             </div>
           </div>
-          <div className="flex items-center relative">
+          <div className="flex items-center relative" ref={dropdownRef}>
             <button
               onClick={() => setShowDropdown(!showDropdown)}
               className="flex items-center space-x-1 sm:space-x-2 px-2 py-1.5 sm:px-4 sm:py-2 bg-white rounded-lg border-2 border-brand-teal hover:bg-brand-teal/5 transition"
