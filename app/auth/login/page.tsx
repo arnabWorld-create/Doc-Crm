@@ -117,28 +117,28 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Divider */}
-          <div className="my-6 flex items-center">
+          {/* Divider - HIDDEN: Uncomment to show registration link */}
+          {/* <div className="my-6 flex items-center">
             <div className="flex-1 border-t-2 border-gray-200"></div>
             <span className="px-3 text-gray-500 text-sm">or</span>
             <div className="flex-1 border-t-2 border-gray-200"></div>
-          </div>
+          </div> */}
 
-          {/* Register Link */}
-          <p className="text-center text-gray-600 text-sm">
+          {/* Register Link - HIDDEN: Uncomment to allow new user registration */}
+          {/* <p className="text-center text-gray-600 text-sm">
             Don't have an account?{' '}
             <Link href="/auth/register" className="text-brand-teal font-semibold hover:underline">
               Create one
             </Link>
-          </p>
+          </p> */}
         </div>
 
-        {/* Demo Credentials */}
-        <div className="mt-6 p-4 bg-white/20 rounded-lg backdrop-blur">
+        {/* Demo Credentials - HIDDEN: Uncomment to show demo instructions */}
+        {/* <div className="mt-6 p-4 bg-white/20 rounded-lg backdrop-blur">
           <p className="text-white text-xs text-center">
             Demo: Use any email and password (min 6 chars) to register
           </p>
-        </div>
+        </div> */}
       </div>
     </div>
   );

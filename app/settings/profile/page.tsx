@@ -446,6 +446,150 @@ export default function ClinicProfilePage() {
           </button>
         </div>
       </form>
+
+      {/* Change Password Section */}
+      <ChangePasswordSection />
+    </div>
+  );
+}
+
+// Change Password Component
+function ChangePasswordSection() {
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+  const [passwordMessage, setPasswordMessage] = useState('');
+  const [changingPassword, setChangingPassword] = useState(false);
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPasswordData({
+      ...passwordData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordMessage('');
+
+    // Validation
+    if (passwordData.newPassword.length < 6) {
+      setPasswordMessage('New password must be at least 6 characters');
+      return;
+    }
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setPasswordMessage('New passwords do not match');
+      return;
+    }
+
+    setChangingPassword(true);
+
+    try {
+      const response = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setPasswordMessage('Password changed successfully!');
+        setPasswordData({
+          currentPassword: '',
+          newPassword: '',
+          confirmPassword: '',
+        });
+      } else {
+        setPasswordMessage(data.error || 'Failed to change password');
+      }
+    } catch (error) {
+      setPasswordMessage('Failed to change password');
+    } finally {
+      setChangingPassword(false);
+    }
+  };
+
+  return (
+    <div className="bg-white p-6 rounded-xl shadow-lg border-2 border-gray-100">
+      <h3 className="text-xl font-bold text-brand-teal mb-4 flex items-center">
+        <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+        Change Password
+      </h3>
+
+      {passwordMessage && (
+        <div className={`p-4 rounded-lg mb-4 ${passwordMessage.includes('success') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+          {passwordMessage}
+        </div>
+      )}
+
+      <form onSubmit={handlePasswordSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-semibold text-brand-teal mb-2">
+            Current Password *
+          </label>
+          <input
+            type="password"
+            name="currentPassword"
+            value={passwordData.currentPassword}
+            onChange={handlePasswordChange}
+            required
+            className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20 outline-none"
+            placeholder="Enter current password"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold text-brand-teal mb-2">
+            New Password *
+          </label>
+          <input
+            type="password"
+            name="newPassword"
+            value={passwordData.newPassword}
+            onChange={handlePasswordChange}
+            required
+            className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20 outline-none"
+            placeholder="Enter new password (min 6 characters)"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold text-brand-teal mb-2">
+            Confirm New Password *
+          </label>
+          <input
+            type="password"
+            name="confirmPassword"
+            value={passwordData.confirmPassword}
+            onChange={handlePasswordChange}
+            required
+            className="w-full rounded-lg border-2 border-gray-200 px-4 py-2.5 focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20 outline-none"
+            placeholder="Confirm new password"
+          />
+        </div>
+
+        <div className="flex justify-end">
+          <button
+            type="submit"
+            disabled={changingPassword}
+            className="flex items-center space-x-2 px-6 py-3 bg-brand-yellow text-white rounded-lg hover:bg-brand-yellow/90 transition-colors disabled:opacity-50"
+          >
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            <span>{changingPassword ? 'Changing...' : 'Change Password'}</span>
+          </button>
+        </div>
+      </form>
     </div>
   );
 }

@@ -79,10 +79,6 @@ const Navbar = () => {
                 <Activity className="h-4 w-4" />
                 <span>Analytics</span>
               </Link>
-              <Link href="/settings/profile" className="flex items-center space-x-2 px-4 py-2 rounded-lg text-brand-teal hover:bg-brand-teal hover:text-white transition-all font-medium">
-                <Settings className="h-4 w-4" />
-                <span>Settings</span>
-              </Link>
             </div>
           </div>
           <div className="flex items-center relative">
@@ -100,18 +96,30 @@ const Navbar = () => {
 
             {/* Dropdown Menu */}
             {showDropdown && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border-2 border-brand-teal top-full z-50">
+              <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border-2 border-brand-teal top-full z-50">
                 <div className="p-4 border-b-2 border-gray-100">
                   <p className="text-sm font-semibold text-brand-teal">{doctorName || user?.name}</p>
                   <p className="text-xs text-gray-600">{user?.email}</p>
                 </div>
-                <button
-                  onClick={handleLogout}
-                  className="w-full flex items-center space-x-2 px-4 py-3 text-red-600 hover:bg-red-50 transition font-medium text-sm"
-                >
-                  <LogOut className="h-4 w-4" />
-                  <span>Logout</span>
-                </button>
+                <div className="py-2">
+                  <Link
+                    href="/settings/profile"
+                    onClick={() => setShowDropdown(false)}
+                    className="w-full flex items-center space-x-2 px-4 py-2.5 text-brand-teal hover:bg-brand-teal/10 transition font-medium text-sm"
+                  >
+                    <Settings className="h-4 w-4" />
+                    <span>Settings</span>
+                  </Link>
+                </div>
+                <div className="border-t-2 border-gray-100">
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center space-x-2 px-4 py-3 text-red-600 hover:bg-red-50 transition font-medium text-sm"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span>Logout</span>
+                  </button>
+                </div>
               </div>
             )}
           </div>
