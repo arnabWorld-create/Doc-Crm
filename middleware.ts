@@ -6,6 +6,11 @@ const publicRoutes = ['/auth/login', '/auth/register', '/'];
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
+  // Allow landing page and its assets
+  if (pathname.startsWith('/landing')) {
+    return NextResponse.next();
+  }
+
   // Allow public routes
   if (publicRoutes.includes(pathname)) {
     return NextResponse.next();
@@ -25,7 +30,8 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - public folder
+     * - landing (landing page static files)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|public).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|public|landing).*)',
   ],
 };

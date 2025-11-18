@@ -1,232 +1,211 @@
-# Faith Clinic - Patient Management System
+# Faith Clinic - Doctor CRM & Landing Page
 
-A comprehensive clinic management system built with Next.js, TypeScript, and PostgreSQL.
+A comprehensive clinic management system with an integrated landing page for Faith Clinic, Dr. Aishwarya Radia.
 
-## Features
+## 🚀 Features
 
-✅ **Patient Management**
-- Complete patient records with demographics
+### Landing Page
+- Professional landing page at root URL (/)
+- Fully responsive design
+- WhatsApp booking integration
+- Google Maps integration
+- SEO optimized
+- Fast loading with Next.js optimization
+
+### CRM System
+- Patient management
+- Appointment scheduling
 - Visit history tracking
-- Medical records management
-- Report uploads (Supabase storage)
-
-✅ **Appointment System**
-- Schedule and manage appointments
+- Prescription generation & printing
+- Medical reports upload (Supabase storage)
+- Analytics dashboard
 - Calendar view
-- Walk-in patient support
-- Appointment status tracking
+- Patient search
+- Export functionality
 
-✅ **Visit Management**
-- Record vitals (temperature, BP, pulse, SpO2)
-- Chief complaints and diagnosis
-- Treatment and medicine prescriptions
-- Follow-up scheduling
-
-✅ **Prescription Printing**
-- Professional prescription format
-- Clinic branding and logo
-- Medicine details with dosage
-- Print-ready layout
-
-✅ **Analytics Dashboard**
-- Patient statistics
-- Visit trends
-- Revenue tracking
-- Monthly reports
-
-✅ **Authentication & Security**
-- Secure login/register
-- JWT token authentication
-- Password hashing (bcrypt)
-- API route protection
-
-✅ **Clinic Settings**
-- Clinic profile management
-- Doctor information
-- Working hours
-- Logo upload
-
-## Tech Stack
+## 📋 Tech Stack
 
 - **Framework:** Next.js 14 (App Router)
-- **Language:** TypeScript
 - **Database:** PostgreSQL (Supabase)
 - **ORM:** Prisma
-- **Styling:** Tailwind CSS
-- **Authentication:** JWT + HTTP-only cookies
 - **Storage:** Supabase Storage
-- **Icons:** Lucide React
+- **Authentication:** JWT
+- **Styling:** Tailwind CSS
+- **UI Components:** Radix UI + Custom components
 
-## Getting Started
+## 🛠️ Quick Start
 
-### Prerequisites
-
-- Node.js 18+ installed
-- PostgreSQL database (or Supabase account)
-
-### Installation
-
-1. Clone the repository
-```bash
-git clone <your-repo-url>
-cd doctor-crm
-```
-
-2. Install dependencies
+### 1. Install Dependencies
 ```bash
 npm install
 ```
 
-3. Set up environment variables
-Create a `.env.local` file:
+### 2. Set Up Environment Variables
+Copy `.env.example` to `.env.local` and fill in your values:
+
 ```env
-DATABASE_URL="postgresql://..."
-NEXT_PUBLIC_SUPABASE_URL="https://..."
-NEXT_PUBLIC_SUPABASE_ANON_KEY="..."
+DATABASE_URL="your-database-url"
+DIRECT_URL="your-direct-database-url"
+JWT_SECRET="your-jwt-secret"
+NEXT_PUBLIC_SUPABASE_URL="your-supabase-url"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="your-supabase-anon-key"
 NEXT_PUBLIC_SUPABASE_BUCKET="patient-reports"
-JWT_SECRET="your-secret-key"
 ```
 
-4. Run database migrations
+### 3. Run Database Migrations
 ```bash
 npx prisma migrate dev
 ```
 
-5. Seed the database (optional)
+### 4. Seed Database
 ```bash
 npx prisma db seed
 ```
 
-6. Start the development server
+This creates a default user:
+- Email: `doctor@faithclinic.com`
+- Password: `password123`
+
+### 5. Start Development Server
 ```bash
 npm run dev
 ```
 
-7. Open [http://localhost:3000](http://localhost:3000)
+Visit:
+- Landing Page: http://localhost:3000
+- CRM Login: http://localhost:3000/auth/login
 
-## Default Login
+## 📦 Production Deployment
 
-**Email:** `doctor@faithclinic.com`  
-**Password:** `password123`
+### Deploy to Vercel
 
-## Project Structure
+1. **Push to GitHub**
+```bash
+git add .
+git commit -m "Ready for production"
+git push origin main
+```
+
+2. **Import to Vercel**
+- Go to [vercel.com](https://vercel.com)
+- Click "New Project"
+- Import your repository
+- Framework: Next.js (auto-detected)
+
+3. **Set Environment Variables**
+
+In Vercel Dashboard → Settings → Environment Variables:
+
+```env
+DATABASE_URL=postgresql://postgres.xxx:password@aws-0-region.pooler.supabase.com:6543/postgres?pgbouncer=true
+DIRECT_URL=postgresql://postgres:password@db.xxx.supabase.co:5432/postgres
+JWT_SECRET=[generate-random-32-char-string]
+NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+NEXT_PUBLIC_SUPABASE_BUCKET=patient-reports
+```
+
+**Generate JWT_SECRET:**
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+4. **Deploy**
+Click "Deploy" and wait for build to complete.
+
+5. **Run Migrations**
+```bash
+DATABASE_URL="your-production-url" npx prisma migrate deploy
+DATABASE_URL="your-production-url" npx prisma db seed
+```
+
+## 📚 Documentation
+
+- `DEPLOYMENT.md` - Detailed deployment guide
+- `VERCEL_DEPLOYMENT_QUICK_GUIDE.md` - Quick Vercel setup
+- `VERCEL_FIX_PGBOUNCER.md` - Fix PgBouncer connection issues
+- `VERCEL_ENV_SETUP.md` - Environment variables reference
+- `SUPABASE_POOLER_SETUP.md` - Supabase connection pooling
+- `LANDING_PRODUCTION_PUSH.md` - Landing page deployment
+- `QUICK_START.md` - Quick start guide
+
+## 🏗️ Project Structure
 
 ```
 ├── app/                    # Next.js app directory
-│   ├── api/               # API routes
+│   ├── page.tsx           # Landing page (root)
 │   ├── auth/              # Authentication pages
 │   ├── patients/          # Patient management
-│   ├── appointments/      # Appointment system
+│   ├── appointments/      # Appointment scheduling
 │   ├── calendar/          # Calendar view
 │   ├── analytics/         # Analytics dashboard
-│   └── settings/          # Settings pages
+│   ├── settings/          # Settings pages
+│   └── api/               # API routes
 ├── components/            # React components
-├── lib/                   # Utility functions
-│   ├── auth.ts           # Authentication utilities
-│   ├── prisma.ts         # Prisma client
-│   └── medicalData.ts    # Medical data constants
-├── prisma/               # Database schema and migrations
-│   ├── schema.prisma     # Database schema
-│   └── seed.ts           # Seed data
-└── middleware.ts         # Next.js middleware
-
+├── lib/                   # Utilities & helpers
+├── prisma/               # Database schema & migrations
+├── public/               # Static assets
+│   └── landing-assets/   # Landing page images
+└── utils/                # Utility functions
 ```
 
-## Database Schema
+## 🔐 Security
 
-- **User** - Authentication and user management
-- **Patient** - Patient demographics and information
-- **Visit** - Medical visits and consultations
-- **Appointment** - Appointment scheduling
-- **ClinicProfile** - Clinic settings and information
-- **CustomMedicine** - Custom medicine database
+- JWT-based authentication
+- Password hashing with bcrypt
+- Environment variables for sensitive data
+- Supabase Row Level Security (RLS)
+- HTTPS enforced in production
 
-## API Routes
+## 📱 Landing Page Sections
 
-### Authentication
-- `POST /api/auth/register` - Register new user
-- `POST /api/auth/login` - Login
-- `POST /api/auth/logout` - Logout
-- `GET /api/auth/me` - Get current user
+1. **Header** - Navigation with mobile menu
+2. **Hero** - Introduction with CTAs
+3. **About** - Doctor profile & credentials
+4. **Services** - Medical services offered
+5. **Gallery** - Clinic photos
+6. **Testimonials** - Patient reviews
+7. **Contact** - Address, hours, map
+8. **Footer** - Links & social media
 
-### Patients
-- `GET /api/patients` - List all patients
-- `POST /api/patients` - Create patient
-- `GET /api/patients/[id]` - Get patient details
-- `PUT /api/patients/[id]` - Update patient
-- `DELETE /api/patients/[id]` - Delete patient
+## 🎨 Customization
 
-### Visits
-- `GET /api/patients/[id]/visits` - List patient visits
-- `POST /api/patients/[id]/visits` - Create visit
-- `PUT /api/patients/[id]/visits/[visitId]` - Update visit
-- `DELETE /api/patients/[id]/visits/[visitId]` - Delete visit
+### Update Clinic Information
+Edit `app/page.tsx` to update:
+- Clinic name & doctor name
+- Contact numbers
+- Address
+- Services
+- Testimonials
+- Social media links
 
-### Appointments
-- `GET /api/appointments` - List appointments
-- `POST /api/appointments` - Create appointment
-- `PUT /api/appointments/[id]` - Update appointment
-- `DELETE /api/appointments/[id]` - Delete appointment
+### Update Colors
+Edit `tailwind.config.js` for brand colors.
 
-## Security
+### Update Logo
+Replace `public/landing-assets/faith-logo.png`
 
-- ✅ Passwords hashed with bcrypt
-- ✅ JWT tokens with HTTP-only cookies
-- ✅ API route protection
-- ✅ CSRF protection (SameSite cookies)
-- ✅ XSS prevention (HTTP-only cookies)
+## 🧪 Testing
 
-## Production Deployment
+```bash
+# Run build test
+npm run build
 
-### Vercel Deployment (Recommended)
+# Start production server locally
+npm start
+```
 
-1. **Push your code to GitHub/GitLab/Bitbucket**
+## 📞 Support
 
-2. **Import project to Vercel**
-   - Go to [vercel.com](https://vercel.com)
-   - Click "New Project"
-   - Import your repository
+For issues or questions:
+- Check documentation files
+- Review Vercel deployment logs
+- Check browser console for errors
 
-3. **Set Environment Variables in Vercel**
-   - Go to Project Settings → Environment Variables
-   - Add these variables:
+## 📄 License
 
-   ```
-   DATABASE_URL=postgresql://user:password@host:port/database
-   NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-   NEXT_PUBLIC_SUPABASE_BUCKET=patient-reports
-   JWT_SECRET=your-super-secret-jwt-key-change-this
-   ```
+Private project for Faith Clinic.
 
-4. **Deploy**
-   - Vercel will automatically build and deploy
-   - Your app will be live at `your-project.vercel.app`
+---
 
-### Important: Environment Variables
-
-- `.env.local` is for local development only (not deployed)
-- `.env.example` shows what variables are needed
-- Set all variables in Vercel dashboard for production
-- Never commit `.env.local` to Git (it's in `.gitignore`)
-
-### Manual Deployment
-
-1. Set environment variables on your server
-2. Run database migrations:
-   ```bash
-   npx prisma migrate deploy
-   ```
-3. Build and start:
-   ```bash
-   npm run build
-   npm start
-   ```
-
-## License
-
-Private - All rights reserved
-
-## Support
-
-For support, contact your development team.
+**Built with ❤️ for Faith Clinic**

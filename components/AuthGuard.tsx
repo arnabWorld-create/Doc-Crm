@@ -9,8 +9,12 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
 
-  // If on auth pages, always show content immediately
-  if (pathname.startsWith('/auth/')) {
+  // Public pages that don't require authentication
+  const publicPaths = ['/auth/', '/'];
+  const isPublicPath = publicPaths.some(path => pathname === path || pathname.startsWith(path));
+
+  // If on public pages, always show content immediately
+  if (isPublicPath) {
     return <>{children}</>;
   }
 

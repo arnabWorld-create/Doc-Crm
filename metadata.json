@@ -1,5 +1,0 @@
-{
-  "name": "Doctor CRM",
-  "description": "A comprehensive patient management system for doctors and clinics, built with Next.js and Prisma. Allows for creating, viewing, updating, and deleting patient records with search, pagination, and CSV export functionality.",
-  "requestFramePermissions": []
-}
