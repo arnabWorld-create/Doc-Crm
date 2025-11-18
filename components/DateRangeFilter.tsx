@@ -140,23 +140,130 @@ const DateRangeFilter = () => {
   const hasActiveFilter = startDate || endDate || selectedMonth;
 
   return (
-    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-1.5 bg-white p-2 rounded-lg border-2 border-gray-200">
-      <div className="flex items-center gap-1 text-xs font-medium text-gray-700">
-        <Calendar className="h-3.5 w-3.5 text-brand-teal flex-shrink-0" />
-        <span className="whitespace-nowrap">Filter by Date:</span>
+    <div>
+      {/* Mobile Layout */}
+      <div className="lg:hidden bg-white p-3 rounded-lg border-2 border-gray-200 space-y-3">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm font-semibold text-brand-teal">
+            <Calendar className="h-4 w-4" />
+            <span>Filter by Date</span>
+          </div>
+          {hasActiveFilter && (
+            <button
+              onClick={handleClear}
+              className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50 rounded transition-all"
+              title="Clear filters"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
+
+        {/* Month and Year */}
+        <div className="grid grid-cols-2 gap-2">
+          <div className="space-y-1">
+            <label htmlFor="monthSelect" className="block text-xs font-medium text-gray-600">
+              Month:
+            </label>
+            <select
+              id="monthSelect"
+              value={filterMonth}
+              onChange={(e) => handleMonthChange(e.target.value)}
+              className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm outline-none focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20 transition-all bg-white"
+            >
+              <option value="">Select</option>
+              {months.map((month) => (
+                <option key={month.value} value={month.value}>
+                  {month.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          
+          <div className="space-y-1">
+            <label htmlFor="yearSelect" className="block text-xs font-medium text-gray-600">
+              Year:
+            </label>
+            <select
+              id="yearSelect"
+              value={filterYear}
+              onChange={(e) => handleYearChange(e.target.value)}
+              className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm outline-none focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20 transition-all bg-white"
+            >
+              {years.map((y) => (
+                <option key={y} value={y}>
+                  {y}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="flex items-center gap-2">
+          <div className="flex-1 border-t border-gray-200"></div>
+          <span className="text-xs text-gray-400 font-medium">OR</span>
+          <div className="flex-1 border-t border-gray-200"></div>
+        </div>
+
+        {/* Date Range */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div className="space-y-1">
+            <label htmlFor="startDate" className="block text-xs font-medium text-gray-600">
+              From:
+            </label>
+            <input
+              id="startDate"
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              disabled={!!selectedMonth}
+              className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm outline-none focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20 transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+            />
+          </div>
+          
+          <div className="space-y-1">
+            <label htmlFor="endDate" className="block text-xs font-medium text-gray-600">
+              To:
+            </label>
+            <input
+              id="endDate"
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              disabled={!!selectedMonth}
+              className="w-full rounded-lg border-2 border-gray-200 px-3 py-2 text-sm outline-none focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20 transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+            />
+          </div>
+        </div>
+
+        {/* Apply Button */}
+        <button
+          onClick={handleFilter}
+          className="w-full px-4 py-2.5 text-sm font-semibold text-white bg-brand-teal hover:bg-brand-teal/90 rounded-lg transition-all shadow-sm hover:shadow"
+        >
+          Apply Filter
+        </button>
       </div>
-      
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-1.5 flex-1">
-        {/* Month and Year Selectors */}
+
+      {/* Desktop Layout - Inline */}
+      <div className="hidden lg:flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-1.5 text-xs font-medium text-brand-teal">
+          <Calendar className="h-3.5 w-3.5" />
+          <span>Filter by Date:</span>
+        </div>
+
+        {/* Month and Year */}
         <div className="flex items-center gap-1">
-          <label className="text-xs font-medium text-gray-600 whitespace-nowrap">
+          <label htmlFor="monthSelectDesktop" className="text-xs text-gray-600">
             Month:
           </label>
           <select
-            id="monthSelect"
+            id="monthSelectDesktop"
             value={filterMonth}
             onChange={(e) => handleMonthChange(e.target.value)}
-            className="w-24 rounded border-2 border-gray-200 px-2 py-1 text-xs outline-none focus:border-brand-teal focus:ring-1 focus:ring-brand-teal/20 transition-all bg-white"
+            className="w-28 rounded border border-gray-300 px-2 py-1 text-xs outline-none focus:border-brand-teal bg-white"
           >
             <option value="">Select</option>
             {months.map((month) => (
@@ -167,63 +274,63 @@ const DateRangeFilter = () => {
           </select>
           
           <select
-            id="yearSelect"
+            id="yearSelectDesktop"
             value={filterYear}
             onChange={(e) => handleYearChange(e.target.value)}
-            className="w-20 rounded border-2 border-gray-200 px-2 py-1 text-xs outline-none focus:border-brand-teal focus:ring-1 focus:ring-brand-teal/20 transition-all bg-white"
+            className="w-20 rounded border border-gray-300 px-2 py-1 text-xs outline-none focus:border-brand-teal bg-white"
           >
-            {years.map((year) => (
-              <option key={year} value={year}>
-                {year}
+            {years.map((y) => (
+              <option key={y} value={y}>
+                {y}
               </option>
             ))}
           </select>
         </div>
 
-        <span className="hidden lg:inline text-gray-400 text-xs self-center px-1">or</span>
+        <span className="text-xs text-gray-400">OR</span>
 
         {/* Date Range */}
         <div className="flex items-center gap-1">
-          <label htmlFor="startDate" className="text-xs font-medium text-gray-600 whitespace-nowrap">
+          <label htmlFor="startDateDesktop" className="text-xs text-gray-600">
             From:
           </label>
           <input
-            id="startDate"
+            id="startDateDesktop"
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
             disabled={!!selectedMonth}
-            className="w-32 rounded border-2 border-gray-200 px-2 py-1 text-xs outline-none focus:border-brand-teal focus:ring-1 focus:ring-brand-teal/20 transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+            className="w-36 rounded border border-gray-300 px-2 py-1 text-xs outline-none focus:border-brand-teal disabled:bg-gray-100 disabled:cursor-not-allowed"
           />
         </div>
         
         <div className="flex items-center gap-1">
-          <label htmlFor="endDate" className="text-xs font-medium text-gray-600 whitespace-nowrap">
+          <label htmlFor="endDateDesktop" className="text-xs text-gray-600">
             To:
           </label>
           <input
-            id="endDate"
+            id="endDateDesktop"
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
             disabled={!!selectedMonth}
-            className="w-32 rounded border-2 border-gray-200 px-2 py-1 text-xs outline-none focus:border-brand-teal focus:ring-1 focus:ring-brand-teal/20 transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+            className="w-36 rounded border border-gray-300 px-2 py-1 text-xs outline-none focus:border-brand-teal disabled:bg-gray-100 disabled:cursor-not-allowed"
           />
         </div>
-      </div>
 
-      <div className="flex items-center gap-1.5">
+        {/* Apply Button */}
         <button
           onClick={handleFilter}
-          className="flex-1 sm:flex-none px-3 py-1 text-xs font-medium text-white bg-brand-teal hover:bg-brand-teal/90 rounded transition-all whitespace-nowrap"
+          className="px-3 py-1 text-xs font-semibold text-white bg-brand-teal hover:bg-brand-teal/90 rounded transition-all"
         >
           Apply
         </button>
-        
+
+        {/* Clear Button */}
         {hasActiveFilter && (
           <button
             onClick={handleClear}
-            className="flex items-center justify-center px-2 py-1 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded transition-all"
+            className="p-1 text-red-600 hover:bg-red-50 rounded transition-all"
             title="Clear filters"
           >
             <X className="h-3.5 w-3.5" />

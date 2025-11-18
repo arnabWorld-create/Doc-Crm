@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { Stethoscope, Users, Activity, Calendar, Settings, CalendarCheck, LogOut } from 'lucide-react';
+import { Stethoscope, Users, Activity, Calendar, Settings, CalendarCheck, LogOut, Menu, X } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import React, { useState, useEffect, useRef } from 'react';
 
@@ -11,6 +11,7 @@ const Navbar = () => {
   const router = useRouter();
   const pathname = usePathname();
   const [showDropdown, setShowDropdown] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [doctorName, setDoctorName] = useState<string>('');
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -99,49 +100,138 @@ const Navbar = () => {
               </Link>
             </div>
           </div>
-          <div className="flex items-center relative" ref={dropdownRef}>
+          <div className="flex items-center space-x-2">
+            {/* Mobile Menu Button */}
             <button
-              onClick={() => setShowDropdown(!showDropdown)}
-              className="flex items-center space-x-1 sm:space-x-2 px-2 py-1.5 sm:px-4 sm:py-2 bg-white rounded-lg border-2 border-brand-teal hover:bg-brand-teal/5 transition"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 rounded-lg text-brand-teal hover:bg-brand-teal/10 transition"
             >
-              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-brand-teal rounded-full flex items-center justify-center text-white font-bold text-xs sm:text-sm">
-                {doctorName?.charAt(0).toUpperCase() || 'D'}
-              </div>
-              <span className="hidden sm:inline text-sm font-medium text-brand-teal truncate max-w-[150px]">
-                {doctorName || 'Doctor'}
-              </span>
+              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
 
-            {/* Dropdown Menu */}
-            {showDropdown && (
-              <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border-2 border-brand-teal top-full z-50">
-                <div className="p-4 border-b-2 border-gray-100">
-                  <p className="text-sm font-semibold text-brand-teal">{doctorName || user?.name}</p>
-                  <p className="text-xs text-gray-600">{user?.email}</p>
+            {/* User Dropdown */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setShowDropdown(!showDropdown)}
+                className="flex items-center space-x-1 sm:space-x-2 px-2 py-1.5 sm:px-4 sm:py-2 bg-white rounded-lg border-2 border-brand-teal hover:bg-brand-teal/5 transition"
+              >
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-brand-teal rounded-full flex items-center justify-center text-white font-bold text-xs sm:text-sm">
+                  {doctorName?.charAt(0).toUpperCase() || 'D'}
                 </div>
-                <div className="py-2">
-                  <Link
-                    href="/settings/profile"
-                    onClick={() => setShowDropdown(false)}
-                    className="w-full flex items-center space-x-2 px-4 py-2.5 text-brand-teal hover:bg-brand-teal/10 transition font-medium text-sm"
-                  >
-                    <Settings className="h-4 w-4" />
-                    <span>Settings</span>
-                  </Link>
+                <span className="hidden sm:inline text-sm font-medium text-brand-teal truncate max-w-[150px]">
+                  {doctorName || 'Doctor'}
+                </span>
+              </button>
+
+              {/* Dropdown Menu */}
+              {showDropdown && (
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border-2 border-brand-teal top-full z-50">
+                  <div className="p-4 border-b-2 border-gray-100">
+                    <p className="text-sm font-semibold text-brand-teal">{doctorName || user?.name}</p>
+                    <p className="text-xs text-gray-600">{user?.email}</p>
+                  </div>
+                  <div className="py-2">
+                    <Link
+                      href="/settings/profile"
+                      onClick={() => setShowDropdown(false)}
+                      className="w-full flex items-center space-x-2 px-4 py-2.5 text-brand-teal hover:bg-brand-teal/10 transition font-medium text-sm"
+                    >
+                      <Settings className="h-4 w-4" />
+                      <span>Settings</span>
+                    </Link>
+                  </div>
+                  <div className="border-t-2 border-gray-100">
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center space-x-2 px-4 py-3 text-red-600 hover:bg-red-50 transition font-medium text-sm"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      <span>Logout</span>
+                    </button>
+                  </div>
                 </div>
-                <div className="border-t-2 border-gray-100">
-                  <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center space-x-2 px-4 py-3 text-red-600 hover:bg-red-50 transition font-medium text-sm"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    <span>Logout</span>
-                  </button>
-                </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden py-4 border-t-2 border-gray-100">
+            <div className="flex flex-col space-y-2">
+              <Link
+                href="/patients"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all font-medium ${
+                  pathname === '/patients' 
+                    ? 'bg-brand-teal text-white' 
+                    : 'text-brand-teal hover:bg-brand-teal/10'
+                }`}
+              >
+                <Users className="h-5 w-5" />
+                <span>Patients</span>
+              </Link>
+              <Link
+                href="/appointments"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all font-medium ${
+                  pathname === '/appointments' 
+                    ? 'bg-brand-teal text-white' 
+                    : 'text-brand-teal hover:bg-brand-teal/10'
+                }`}
+              >
+                <CalendarCheck className="h-5 w-5" />
+                <span>Appointments</span>
+              </Link>
+              <Link
+                href="/calendar"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all font-medium ${
+                  pathname === '/calendar' 
+                    ? 'bg-brand-teal text-white' 
+                    : 'text-brand-teal hover:bg-brand-teal/10'
+                }`}
+              >
+                <Calendar className="h-5 w-5" />
+                <span>Calendar</span>
+              </Link>
+              <Link
+                href="/analytics"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all font-medium ${
+                  pathname === '/analytics' 
+                    ? 'bg-brand-teal text-white' 
+                    : 'text-brand-teal hover:bg-brand-teal/10'
+                }`}
+              >
+                <Activity className="h-5 w-5" />
+                <span>Analytics</span>
+              </Link>
+              <Link
+                href="/settings/profile"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all font-medium ${
+                  pathname === '/settings/profile' 
+                    ? 'bg-brand-teal text-white' 
+                    : 'text-brand-teal hover:bg-brand-teal/10'
+                }`}
+              >
+                <Settings className="h-5 w-5" />
+                <span>Settings</span>
+              </Link>
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  handleLogout();
+                }}
+                className="flex items-center space-x-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-all font-medium"
+              >
+                <LogOut className="h-5 w-5" />
+                <span>Logout</span>
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   );
