@@ -114,6 +114,19 @@ const PatientForm: React.FC<PatientFormProps> = ({ defaultValues, appointmentId 
         ).catch(err => console.error('Failed to save some medicines:', err));
       }
 
+      // Save structured medicines in background
+      if (formData.medications && Array.isArray(formData.medications)) {
+        Promise.all(
+          formData.medications.map(med => 
+            med.name ? fetch('/api/medicines', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name: med.name.trim() }),
+            }).catch(err => console.error('Failed to save medicine:', med.name, err)) : Promise.resolve()
+          )
+        ).catch(err => console.error('Failed to save some medicines:', err));
+      }
+
       // Clean up the data - remove undefined values and convert empty strings to null
       const cleanData = Object.entries(formData).reduce((acc, [key, value]) => {
         if (value === undefined || value === '') {
@@ -171,6 +184,16 @@ const PatientForm: React.FC<PatientFormProps> = ({ defaultValues, appointmentId 
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        {/* Error Display */}
+        {error && (
+          <div className="bg-red-50 border-2 border-red-200 rounded-lg p-4">
+            <p className="text-sm text-red-700 flex items-center">
+              <span className="mr-2">⚠</span>
+              {error}
+            </p>
+          </div>
+        )}
+
         {/* Personal Information Card */}
         <div className="bg-white p-4 sm:p-6 md:p-8 rounded-xl shadow-lg border-2 border-gray-100">
           <div className="flex items-center space-x-2 sm:space-x-3 mb-4 sm:mb-6 pb-3 sm:pb-4 border-b-2 border-brand-teal">
@@ -257,7 +280,7 @@ const PatientForm: React.FC<PatientFormProps> = ({ defaultValues, appointmentId 
                 <ConditionInput name="signs" label="Signs & Symptoms" error={errors.signs} placeholder="e.g., Fever, Cough, Headache (type to see suggestions)..." />
                 <Textarea name="investigations" label="Investigations" register={register} error={errors.investigations} placeholder="e.g., CBC, X-Ray Chest..."/>
                 <Textarea name="treatment" label="Treatment" register={register} error={errors.treatment} placeholder="e.g., Oxygen therapy, bed rest..."/>
-                <MedicineInputStructured name="medicines" label="Medicines" error={errors.medicines} />
+                <MedicineInputStructured name="medications" label="Medicines" error={errors.medications} />
                 <Textarea name="history" label="Medical History / Summary" register={register} error={errors.history} placeholder="e.g., History of hypertension..."/>
             </div>
         </div>

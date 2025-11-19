@@ -37,6 +37,7 @@ export const patientSchema = z.object({
   pulse: z.coerce.number().int().optional().nullable(),
   treatment: z.string().optional().nullable(),
   medicines: z.string().optional().nullable(),
+  medications: z.array(medicationSchema).optional().nullable(),
   notes: z.string().optional().nullable(),
   history: z.string().optional().nullable(),
   reports: z.array(reportFileSchema).optional().nullable(),
