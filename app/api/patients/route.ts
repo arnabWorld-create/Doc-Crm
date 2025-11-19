@@ -135,8 +135,6 @@ export async function POST(req: NextRequest) {
       visitCreateData.followUpDate = new Date(visitData.followUpDate);
     }
 
-
-
     // Create patient with first visit
     const patient = await prisma.patient.create({
       data: {
@@ -150,7 +148,23 @@ export async function POST(req: NextRequest) {
         allergies,
         chronicConditions,
         visits: {
-          create: visitCreateData,
+          create: {
+            ...visitCreateData,
+            // Create medications if provided
+            medications: visitData.medications && Array.isArray(visitData.medications) && visitData.medications.length > 0
+              ? {
+                  create: visitData.medications.map((med: any) => ({
+                    medicine: med.name || '',
+                    dose: med.dose || null,
+                    frequency: med.frequency || null,
+                    timing: med.timing || null,
+                    duration: med.duration || null,
+                    startFrom: med.startFrom || null,
+                    instructions: med.instructions || null,
+                  })),
+                }
+              : undefined,
+          },
         },
       },
       include: {
