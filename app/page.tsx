@@ -8,7 +8,7 @@ import {
   Star, Calendar, Clock, MapPin, Phone, Mail, LogIn, Menu,
   Award, Heart, Users, TrendingUp, Activity, Droplet, Eye, 
   Shield, Stethoscope, Syringe, Pill, Quote, MessageCircle,
-  Instagram, Facebook
+  Instagram
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -47,11 +47,7 @@ export default function LandingPage() {
                 <Phone className="w-4 h-4 mr-2" />
                 Call Us
               </a>
-              <a href="https://wa.me/9879788889" target="_blank" rel="noopener noreferrer">
-                <Button className="bg-teal-600 hover:bg-teal-700" size="sm">
-                  Book Appointment
-                </Button>
-              </a>
+
             </div>
 
             <button 
@@ -70,11 +66,6 @@ export default function LandingPage() {
                 <a href="#services" className="hover:text-teal-600 transition-colors">Services</a>
                 <a href="#testimonials" className="hover:text-teal-600 transition-colors">Testimonials</a>
                 <a href="#contact" className="hover:text-teal-600 transition-colors">Contact</a>
-                <a href="https://wa.me/9879788889" target="_blank" rel="noopener noreferrer" className="w-full">
-                  <Button className="bg-teal-600 hover:bg-teal-700 w-full" size="sm">
-                    Book Appointment
-                  </Button>
-                </a>
               </nav>
             </div>
           )}
@@ -144,12 +135,6 @@ function HeroSection() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 mb-12">
-            <a href="https://wa.me/9879788889" target="_blank" rel="noopener noreferrer">
-              <Button className="bg-teal-600 hover:bg-teal-700 text-lg" size="lg">
-                <Calendar className="mr-2" />
-                Book Appointment
-              </Button>
-            </a>
             <a href="tel:+919879788889">
               <Button variant="outline" size="lg" className="text-lg">
                 <Phone className="mr-2" />
@@ -162,7 +147,7 @@ function HeroSection() {
             <Card className="p-4">
               <Clock className="w-6 h-6 text-teal-600 mb-2" />
               <p className="text-sm font-semibold">Mon - Fri</p>
-              <p className="text-xs text-gray-600">9:30 AM - 1:00 PM & 5:30 PM - 8:00 PM</p>
+              <p className="text-xs text-gray-600">09:30 AM - 12:30 PM & 05:30 PM - 07:30 PM</p>
             </Card>
             <Card className="p-4">
               <MapPin className="w-6 h-6 text-teal-600 mb-2" />
@@ -184,7 +169,7 @@ function HeroSection() {
 
 function AboutSection() {
   const stats = [
-    { icon: Users, value: "1000+", label: "Happy Patients" },
+    { icon: Users, value: "4000+", label: "Happy Patients" },
     { icon: Award, value: "9 Years", label: "Experience" },
     { icon: Heart, value: "4.8", label: "Patient Rating" },
     { icon: TrendingUp, value: "95%", label: "Success Rate" },
@@ -478,8 +463,8 @@ function ContactSection() {
                   <h3 className="text-lg font-semibold mb-2">Clinic Hours</h3>
                   <div className="space-y-1 text-gray-600">
                     <p>Monday - Friday</p>
-                    <p className="font-semibold">9:30 AM - 1:00 PM</p>
-                    <p className="font-semibold">5:30 PM - 8:00 PM</p>
+                    <p className="font-semibold">09:30 AM - 12:30 PM</p>
+                    <p className="font-semibold">05:30 PM - 07:30 PM</p>
                     <p className="text-sm text-red-600 mt-2">Saturday & Sunday: Closed</p>
                   </div>
                 </div>
@@ -526,17 +511,6 @@ function ContactSection() {
             Book your appointment with Dr. Aishwarya Radia today
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="https://wa.me/9879788889" target="_blank" rel="noopener noreferrer">
-              <Button variant="outline" size="lg" className="bg-white text-teal-600 hover:bg-white/90 border-0">
-                Book Appointment Now
-              </Button>
-            </a>
-            <a href="https://wa.me/9879788889" target="_blank" rel="noopener noreferrer">
-              <Button variant="outline" size="lg" className="bg-transparent text-white border-2 border-white hover:bg-white/10">
-                <MessageCircle className="mr-2" />
-                Chat on WhatsApp
-              </Button>
-            </a>
           </div>
         </div>
       </div>
@@ -569,9 +543,6 @@ function FooterSection() {
             <div className="flex space-x-4">
               <a href="https://instagram.com/faithclinicahmedabad" target="_blank" rel="noopener noreferrer" className="bg-teal-100 hover:bg-teal-600 hover:text-white text-teal-600 p-2 rounded-lg transition-all">
                 <Instagram className="w-5 h-5" />
-              </a>
-              <a href="https://facebook.com/faithclinic" target="_blank" rel="noopener noreferrer" className="bg-teal-100 hover:bg-teal-600 hover:text-white text-teal-600 p-2 rounded-lg transition-all">
-                <Facebook className="w-5 h-5" />
               </a>
             </div>
           </div>

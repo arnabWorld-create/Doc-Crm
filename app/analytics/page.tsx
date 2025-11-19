@@ -1,14 +1,11 @@
 import prisma from '@/lib/prisma';
 import { Users, Calendar, TrendingUp, Activity, UserCheck, Clock, AlertCircle, CheckCircle, Stethoscope } from 'lucide-react';
+import { unstable_cache } from 'next/cache';
 
-// Force dynamic rendering - this page needs real-time data
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+// Cache analytics for 5 minutes (300 seconds) - balance between freshness and performance
+export const revalidate = 300;
 
 const AnalyticsPage = async () => {
-  // Fetch analytics data
-  const totalPatients = await prisma.patient.count();
-  
   const today = new Date();
   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
   const startOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
@@ -16,99 +13,69 @@ const AnalyticsPage = async () => {
   const startOfWeek = new Date(today);
   startOfWeek.setDate(today.getDate() - today.getDay());
   
-  const patientsThisMonth = await prisma.patient.count({
-    where: {
-      createdAt: {
-        gte: startOfMonth,
-      },
-    },
-  });
-
-  const patientsLastMonth = await prisma.patient.count({
-    where: {
-      createdAt: {
-        gte: startOfLastMonth,
-        lte: endOfLastMonth,
-      },
-    },
-  });
-
-  const patientsThisWeek = await prisma.patient.count({
-    where: {
-      createdAt: {
-        gte: startOfWeek,
-      },
-    },
-  });
-
-  const consultationsThisMonth = await prisma.visit.count({
-    where: {
-      visitDate: {
-        gte: startOfMonth,
-      },
-    },
-  });
-
   const todayStart = new Date(today);
   todayStart.setHours(0, 0, 0, 0);
   const todayEnd = new Date(today);
   todayEnd.setHours(23, 59, 59, 999);
 
-  const consultationsToday = await prisma.visit.count({
-    where: {
-      visitDate: {
-        gte: todayStart,
-        lt: todayEnd,
-      },
-    },
-  });
-
-  const upcomingFollowUps = await prisma.visit.count({
-    where: {
-      followUpDate: {
-        gte: today,
-      },
-    },
-  });
-
-  const followUpsThisWeek = await prisma.visit.count({
-    where: {
-      followUpDate: {
-        gte: startOfWeek,
-        lt: new Date(startOfWeek.getTime() + 7 * 24 * 60 * 60 * 1000),
-      },
-    },
-  });
-
-  const overdueFollowUps = await prisma.visit.count({
-    where: {
-      followUpDate: {
-        lt: today,
-        not: null,
-      },
-    },
-  });
-
-  // Patients with complete records (at least one visit with full data)
-  const patientsWithCompleteRecords = await prisma.patient.count({
-    where: {
-      visits: {
-        some: {
-          AND: [
-            { signs: { not: null } },
-            { treatment: { not: null } },
-            { diagnosis: { not: null } },
-          ],
+  // Batch all count queries together for better performance
+  const [
+    totalPatients,
+    patientsThisMonth,
+    patientsLastMonth,
+    patientsThisWeek,
+    consultationsToday,
+    upcomingFollowUps,
+    followUpsThisWeek,
+    overdueFollowUps,
+    patientsWithCompleteRecords,
+  ] = await Promise.all([
+    prisma.patient.count(),
+    prisma.patient.count({
+      where: { createdAt: { gte: startOfMonth } },
+    }),
+    prisma.patient.count({
+      where: { createdAt: { gte: startOfLastMonth, lte: endOfLastMonth } },
+    }),
+    prisma.patient.count({
+      where: { createdAt: { gte: startOfWeek } },
+    }),
+    prisma.visit.count({
+      where: { visitDate: { gte: todayStart, lt: todayEnd } },
+    }),
+    prisma.visit.count({
+      where: { followUpDate: { gte: today } },
+    }),
+    prisma.visit.count({
+      where: {
+        followUpDate: {
+          gte: startOfWeek,
+          lt: new Date(startOfWeek.getTime() + 7 * 24 * 60 * 60 * 1000),
         },
       },
-    },
-  });
+    }),
+    prisma.visit.count({
+      where: { followUpDate: { lt: today, not: null } },
+    }),
+    prisma.patient.count({
+      where: {
+        visits: {
+          some: {
+            AND: [
+              { signs: { not: null } },
+              { treatment: { not: null } },
+              { diagnosis: { not: null } },
+            ],
+          },
+        },
+      },
+    }),
+  ]);
 
-  // Average patients per day this month
-  const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+  // Calculate average patients per day
   const avgPatientsPerDay = (patientsThisMonth / today.getDate()).toFixed(1);
 
-  // Get all visits with signs/symptoms and medicines
+  // Get visits with signs/symptoms and medicines (limit to last 1000 for performance)
   const visitsWithData = await prisma.visit.findMany({
     select: {
       signs: true,
@@ -120,6 +87,8 @@ const AnalyticsPage = async () => {
         { medicines: { not: null } },
       ],
     },
+    orderBy: { visitDate: 'desc' },
+    take: 1000, // Limit to last 1000 visits for performance
   });
 
   // Import improved detection functions
@@ -159,14 +128,17 @@ const AnalyticsPage = async () => {
     .slice(0, 10)
     .map(([name, count]) => ({ name, count }));
 
-  // Gender distribution
-  const maleCount = await prisma.patient.count({ where: { gender: 'Male' } });
-  const femaleCount = await prisma.patient.count({ where: { gender: 'Female' } });
-  const otherCount = await prisma.patient.count({ where: { gender: 'Other' } });
+  // Gender distribution - batch queries
+  const [maleCount, femaleCount, otherCount] = await Promise.all([
+    prisma.patient.count({ where: { gender: 'Male' } }),
+    prisma.patient.count({ where: { gender: 'Female' } }),
+    prisma.patient.count({ where: { gender: 'Other' } }),
+  ]);
 
-  // Age groups
+  // Age groups - fetch only age field
   const patients = await prisma.patient.findMany({
     select: { age: true },
+    where: { age: { not: null } }, // Only fetch patients with age
   });
 
   const ageGroups = {
@@ -195,25 +167,15 @@ const AnalyticsPage = async () => {
     ? ((patientsWithCompleteRecords / totalPatients) * 100).toFixed(1)
     : '0';
 
-  // NEW: Appointment Types (Old/New Patient)
-  const totalAppointments = await prisma.appointment.count();
-  
-  // Appointments with existing patients (old patients)
-  const oldPatientAppointments = await prisma.appointment.count({
-    where: {
-      patientId: { not: null },
-    },
-  });
-  
-  // Appointments without patient ID (new/walk-in patients)
-  const newPatientAppointments = await prisma.appointment.count({
-    where: {
-      patientId: null,
-    },
-  });
+  // Appointment Types - batch queries
+  const [totalAppointments, oldPatientAppointments, newPatientAppointments] = await Promise.all([
+    prisma.appointment.count(),
+    prisma.appointment.count({ where: { patientId: { not: null } } }),
+    prisma.appointment.count({ where: { patientId: null } }),
+  ]);
 
-  // NEW: Week on Week New Patient Registrations (last 8 weeks)
-  const weeksData: any[] = [];
+  // Week on Week New Patient Registrations (last 8 weeks) - batch queries
+  const weekPromises = [];
   for (let i = 7; i >= 0; i--) {
     const weekStart = new Date(today);
     weekStart.setDate(today.getDate() - (i * 7) - today.getDay());
@@ -222,22 +184,24 @@ const AnalyticsPage = async () => {
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekStart.getDate() + 7);
     
-    const count = await prisma.patient.count({
-      where: {
-        createdAt: {
-          gte: weekStart,
-          lt: weekEnd,
+    weekPromises.push(
+      prisma.patient.count({
+        where: {
+          createdAt: {
+            gte: weekStart,
+            lt: weekEnd,
+          },
         },
-      },
-    });
-    
-    weeksData.push({
-      weekStart,
-      weekEnd,
-      count,
-      label: `Week ${8 - i}`,
-    });
+      }).then(count => ({
+        weekStart,
+        weekEnd,
+        count,
+        label: `Week ${8 - i}`,
+      }))
+    );
   }
+  
+  const weeksData = await Promise.all(weekPromises);
 
   return (
     <div className="space-y-4 sm:space-y-6">

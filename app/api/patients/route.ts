@@ -5,7 +5,7 @@ import { requireAuth } from '@/lib/api-auth';
 
 export const dynamic = 'force-dynamic';
 
-// GET all patients
+// GET all patients with pagination
 export async function GET(req: NextRequest) {
   // Verify authentication
   const { error, user } = await requireAuth(req);
@@ -14,6 +14,9 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const search = searchParams.get('search') || '';
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '50');
+    const skip = (page - 1) * limit;
 
     const whereClause: any = {};
 
@@ -25,18 +28,41 @@ export async function GET(req: NextRequest) {
       ];
     }
 
-    const patients = await prisma.patient.findMany({
-      where: whereClause,
-      include: {
-        visits: {
-          orderBy: { visitDate: 'desc' },
-          // Get all visits for accurate count
+    // Batch queries for better performance
+    const [patients, total] = await Promise.all([
+      prisma.patient.findMany({
+        where: whereClause,
+        select: {
+          id: true,
+          patientId: true,
+          name: true,
+          age: true,
+          gender: true,
+          contact: true,
+          address: true,
+          bloodGroup: true,
+          createdAt: true,
+          updatedAt: true,
+          _count: {
+            select: { visits: true },
+          },
         },
-      },
-      orderBy: { updatedAt: 'desc' },
-    });
+        orderBy: { updatedAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      prisma.patient.count({ where: whereClause }),
+    ]);
 
-    return NextResponse.json(patients);
+    return NextResponse.json({
+      data: patients,
+      pagination: {
+        total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit),
+      },
+    });
   } catch (error) {
     console.error('Failed to fetch patients:', error);
     return NextResponse.json(

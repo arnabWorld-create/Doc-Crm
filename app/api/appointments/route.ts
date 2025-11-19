@@ -3,12 +3,12 @@ import prisma from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
-// GET - Fetch all appointments with filters
+// GET - Fetch appointments with filters and pagination
 export async function GET(req: NextRequest) {
   try {
     // Check if Appointment model exists
     if (!prisma.appointment) {
-      return NextResponse.json([], { status: 200 });
+      return NextResponse.json({ data: [], pagination: { total: 0, page: 1, limit: 50, pages: 0 } }, { status: 200 });
     }
 
     const { searchParams } = new URL(req.url);
@@ -17,6 +17,9 @@ export async function GET(req: NextRequest) {
     const patientId = searchParams.get('patientId');
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '50');
+    const skip = (page - 1) * limit;
 
     const where: any = {};
 
@@ -54,27 +57,52 @@ export async function GET(req: NextRequest) {
       where.patientId = patientId;
     }
 
-    const appointments = await prisma.appointment.findMany({
-      where,
-      include: {
-        patient: {
-          select: {
-            id: true,
-            patientId: true,
-            name: true,
-            age: true,
-            gender: true,
-            contact: true,
+    // Batch queries for better performance
+    const [appointments, total] = await Promise.all([
+      prisma.appointment.findMany({
+        where,
+        select: {
+          id: true,
+          patientId: true,
+          appointmentDate: true,
+          appointmentTime: true,
+          duration: true,
+          appointmentType: true,
+          status: true,
+          reason: true,
+          notes: true,
+          tempPatientName: true,
+          tempPatientContact: true,
+          patient: {
+            select: {
+              id: true,
+              patientId: true,
+              name: true,
+              age: true,
+              gender: true,
+              contact: true,
+            },
           },
         },
-      },
-      orderBy: [
-        { appointmentDate: 'asc' },
-        { appointmentTime: 'asc' },
-      ],
-    });
+        orderBy: [
+          { appointmentDate: 'asc' },
+          { appointmentTime: 'asc' },
+        ],
+        skip,
+        take: limit,
+      }),
+      prisma.appointment.count({ where }),
+    ]);
 
-    return NextResponse.json(appointments);
+    return NextResponse.json({
+      data: appointments,
+      pagination: {
+        total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit),
+      },
+    });
   } catch (error) {
     console.error('Failed to fetch appointments:', error);
     return NextResponse.json(

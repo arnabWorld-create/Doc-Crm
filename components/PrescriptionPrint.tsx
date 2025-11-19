@@ -296,7 +296,7 @@ const PrescriptionPrint: React.FC<PrescriptionPrintProps> = ({ patient, visit })
                   {clinicProfile?.phone && clinicProfile?.email && ' | '}
                   {clinicProfile?.email && `✉️ ${clinicProfile.email}`}
                 </div>
-                <div>🕐 Mon - Fri: 9:30 AM - 1:00 PM & 5:30 PM - 8:00 PM</div>
+                <div>🕐 Mon - Fri: 09:30 AM - 12:30 PM & 05:30 PM - 07:30 PM</div>
                 {clinicProfile?.website && <div>🌐 {clinicProfile.website}</div>}
               </div>
             </div>
