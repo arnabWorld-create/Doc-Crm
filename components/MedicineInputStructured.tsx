@@ -485,7 +485,7 @@ const MedicineInputStructured: React.FC<MedicineInputStructuredProps> = ({ name,
               ))}
             </div>
 
-            {error && (
+            {error && error.message && !error.message.includes('Expected string, received array') && (
               <p className="text-sm text-red-600 flex items-center">
                 <span className="mr-1">⚠</span>
                 {error.message}
