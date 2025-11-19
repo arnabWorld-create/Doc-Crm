@@ -39,6 +39,33 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
   const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
 
+  // Pre-index events by date for O(1) lookup instead of O(n) filtering
+  const eventsByDate = new Map<string, { consultations: Patient[]; followUps: Patient[] }>();
+  
+  consultations.forEach(p => {
+    if (!p.consultationDate) return;
+    const pDate = new Date(p.consultationDate);
+    if (pDate.getMonth() === currentMonth && pDate.getFullYear() === currentYear) {
+      const key = pDate.getDate().toString();
+      if (!eventsByDate.has(key)) {
+        eventsByDate.set(key, { consultations: [], followUps: [] });
+      }
+      eventsByDate.get(key)!.consultations.push(p);
+    }
+  });
+
+  followUps.forEach(p => {
+    if (!p.followUpDate) return;
+    const pDate = new Date(p.followUpDate);
+    if (pDate.getMonth() === currentMonth && pDate.getFullYear() === currentYear) {
+      const key = pDate.getDate().toString();
+      if (!eventsByDate.has(key)) {
+        eventsByDate.set(key, { consultations: [], followUps: [] });
+      }
+      eventsByDate.get(key)!.followUps.push(p);
+    }
+  });
+
   const handlePrevMonth = () => {
     const newMonth = currentMonth === 0 ? 11 : currentMonth - 1;
     const newYear = currentMonth === 0 ? currentYear - 1 : currentYear;
@@ -52,23 +79,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   };
 
   const getEventsForDate = (day: number) => {
-    const dayConsultations = consultations.filter(p => {
-      if (!p.consultationDate) return false;
-      const pDate = new Date(p.consultationDate);
-      return pDate.getDate() === day &&
-        pDate.getMonth() === currentMonth &&
-        pDate.getFullYear() === currentYear;
-    });
-
-    const dayFollowUps = followUps.filter(p => {
-      if (!p.followUpDate) return false;
-      const pDate = new Date(p.followUpDate);
-      return pDate.getDate() === day &&
-        pDate.getMonth() === currentMonth &&
-        pDate.getFullYear() === currentYear;
-    });
-
-    return { consultations: dayConsultations, followUps: dayFollowUps };
+    return eventsByDate.get(day.toString()) || { consultations: [], followUps: [] };
   };
 
   const renderCalendarDays = () => {
