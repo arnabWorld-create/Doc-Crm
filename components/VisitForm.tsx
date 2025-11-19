@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import ReportsUploader from './ReportsUploader';
 import MedicineInput from './MedicineInput';
+import MedicineInputStructured from './MedicineInputStructured';
 import ConditionInput from './ConditionInput';
 
 interface VisitFormProps {
@@ -12,6 +13,17 @@ interface VisitFormProps {
   initialData?: any;
   onSubmit?: (data: any) => Promise<void>;
   isEdit?: boolean;
+}
+
+interface Medicine {
+  id: string;
+  name: string;
+  dose: string;
+  frequency: string;
+  timing: string;
+  duration: string;
+  startFrom: string;
+  instructions: string;
 }
 
 interface VisitFormData {
@@ -23,6 +35,7 @@ interface VisitFormData {
   diagnosis?: string;
   treatment?: string;
   medicines?: string;
+  medications?: Medicine[];
   temp?: string;
   spo2?: string;
   pulse?: string;
@@ -84,6 +97,20 @@ const VisitForm: React.FC<VisitFormProps> = ({ patientId, initialData, onSubmit:
   // Prepare default values
   const getDefaultValues = () => {
     if (initialData) {
+      // Convert medications from DB format to form format
+      const medications = initialData.medications && Array.isArray(initialData.medications) && initialData.medications.length > 0
+        ? initialData.medications.map((med: any) => ({
+            id: med.id || Date.now().toString(),
+            name: med.medicine || '',
+            dose: med.dose || '',
+            frequency: med.frequency || '',
+            timing: med.timing || '',
+            duration: med.duration || '',
+            startFrom: med.startFrom || '',
+            instructions: med.instructions || '',
+          }))
+        : [{ id: Date.now().toString(), name: '', dose: '', frequency: '', timing: '', duration: '', startFrom: '', instructions: '' }];
+
       return {
         visitDate: initialData.visitDate ? new Date(initialData.visitDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
         visitType: initialData.visitType || 'Consultation',
@@ -92,6 +119,7 @@ const VisitForm: React.FC<VisitFormProps> = ({ patientId, initialData, onSubmit:
         diagnosis: initialData.diagnosis || '',
         treatment: initialData.treatment || '',
         medicines: initialData.medicines || '',
+        medications,
         temp: initialData.temp?.toString() || '',
         spo2: initialData.spo2?.toString() || '',
         pulse: initialData.pulse?.toString() || '',
@@ -103,6 +131,7 @@ const VisitForm: React.FC<VisitFormProps> = ({ patientId, initialData, onSubmit:
     return {
       visitDate: new Date().toISOString().split('T')[0],
       visitType: 'Consultation',
+      medications: [{ id: Date.now().toString(), name: '', dose: '', frequency: '', timing: '', duration: '', startFrom: '', instructions: '' }],
     };
   };
 
@@ -117,19 +146,18 @@ const VisitForm: React.FC<VisitFormProps> = ({ patientId, initialData, onSubmit:
     setError(null);
 
     try {
-      // Save custom medicines
-      if (data.medicines) {
-        const medicines = data.medicines.split('\n').map((m: string) => m.trim()).filter((m: string) => m);
-        for (const medicine of medicines) {
-          if (medicine) {
+      // Save custom medicines from structured input
+      if (data.medications && Array.isArray(data.medications)) {
+        for (const med of data.medications) {
+          if (med.name && med.name.trim()) {
             try {
               await fetch('/api/medicines', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: medicine }),
+                body: JSON.stringify({ name: med.name.trim() }),
               });
             } catch (error) {
-              console.error('Failed to save medicine:', medicine, error);
+              console.error('Failed to save medicine:', med.name, error);
             }
           }
         }
@@ -199,7 +227,7 @@ const VisitForm: React.FC<VisitFormProps> = ({ patientId, initialData, onSubmit:
             <Textarea name="investigations" label="Investigations" register={register} error={errors.investigations} placeholder="e.g., CBC, X-Ray..."/>
             <Textarea name="diagnosis" label="Diagnosis" register={register} error={errors.diagnosis} placeholder="e.g., Viral Fever, Hypertension..."/>
             <Textarea name="treatment" label="Treatment" register={register} error={errors.treatment} placeholder="e.g., Bed rest, medications..."/>
-            <MedicineInput name="medicines" label="Medicines" error={errors.medicines} placeholder="Start typing medicine name..." />
+            <MedicineInputStructured name="medications" label="Medications" error={errors.medications} />
             <Textarea name="notes" label="Additional Notes" register={register} error={errors.notes} placeholder="Any additional observations..."/>
           </div>
         </div>

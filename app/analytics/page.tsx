@@ -195,6 +195,50 @@ const AnalyticsPage = async () => {
     ? ((patientsWithCompleteRecords / totalPatients) * 100).toFixed(1)
     : '0';
 
+  // NEW: Appointment Types (Old/New Patient)
+  const totalAppointments = await prisma.appointment.count();
+  
+  // Appointments with existing patients (old patients)
+  const oldPatientAppointments = await prisma.appointment.count({
+    where: {
+      patientId: { not: null },
+    },
+  });
+  
+  // Appointments without patient ID (new/walk-in patients)
+  const newPatientAppointments = await prisma.appointment.count({
+    where: {
+      patientId: null,
+    },
+  });
+
+  // NEW: Week on Week New Patient Registrations (last 8 weeks)
+  const weeksData: any[] = [];
+  for (let i = 7; i >= 0; i--) {
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - (i * 7) - today.getDay());
+    weekStart.setHours(0, 0, 0, 0);
+    
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 7);
+    
+    const count = await prisma.patient.count({
+      where: {
+        createdAt: {
+          gte: weekStart,
+          lt: weekEnd,
+        },
+      },
+    });
+    
+    weeksData.push({
+      weekStart,
+      weekEnd,
+      count,
+      label: `Week ${8 - i}`,
+    });
+  }
+
   return (
     <div className="space-y-4 sm:space-y-6">
       <div>
@@ -292,6 +336,144 @@ const AnalyticsPage = async () => {
           </div>
           <h3 className="text-2xl sm:text-3xl font-bold text-brand-red mb-1">{overdueFollowUps}</h3>
           <p className="text-xs sm:text-sm text-gray-600">Overdue Follow-ups</p>
+        </div>
+      </div>
+
+      {/* NEW: Appointment Types & Weekly Registrations */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        {/* Appointment Types (Old/New Patient) */}
+        <div className="bg-white p-4 sm:p-6 rounded-xl shadow-lg border-2 border-gray-100">
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
+            <h3 className="text-lg sm:text-xl font-bold text-brand-teal">Appointment Types</h3>
+            <div className="p-2 bg-brand-teal/10 rounded-lg">
+              <UserCheck className="h-5 w-5 text-brand-teal" />
+            </div>
+          </div>
+          
+          {totalAppointments > 0 ? (
+            <div className="space-y-6">
+              {/* Old Patients */}
+              <div>
+                <div className="flex justify-between items-center mb-3">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 rounded-full bg-brand-teal"></div>
+                    <span className="text-sm font-medium text-gray-700">Existing Patients</span>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-2xl font-bold text-brand-teal">{oldPatientAppointments}</p>
+                    <p className="text-xs text-gray-500">{((oldPatientAppointments / totalAppointments) * 100).toFixed(1)}%</p>
+                  </div>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-3">
+                  <div 
+                    className="bg-brand-teal h-3 rounded-full transition-all" 
+                    style={{ width: `${(oldPatientAppointments / totalAppointments) * 100}%` }}
+                  ></div>
+                </div>
+              </div>
+
+              {/* New Patients */}
+              <div>
+                <div className="flex justify-between items-center mb-3">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 rounded-full bg-brand-yellow"></div>
+                    <span className="text-sm font-medium text-gray-700">New/Walk-in Patients</span>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-2xl font-bold text-brand-yellow">{newPatientAppointments}</p>
+                    <p className="text-xs text-gray-500">{((newPatientAppointments / totalAppointments) * 100).toFixed(1)}%</p>
+                  </div>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-3">
+                  <div 
+                    className="bg-brand-yellow h-3 rounded-full transition-all" 
+                    style={{ width: `${(newPatientAppointments / totalAppointments) * 100}%` }}
+                  ></div>
+                </div>
+              </div>
+
+              {/* Total */}
+              <div className="pt-4 border-t border-gray-100">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-semibold text-gray-700">Total Appointments</span>
+                  <span className="text-xl font-bold text-gray-900">{totalAppointments}</span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-8 text-gray-400">
+              <Calendar className="h-12 w-12 mx-auto mb-2 opacity-30" />
+              <p className="text-sm">No appointment data available yet</p>
+            </div>
+          )}
+        </div>
+
+        {/* Week on Week New Patient Registrations */}
+        <div className="bg-white p-4 sm:p-6 rounded-xl shadow-lg border-2 border-gray-100">
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
+            <h3 className="text-lg sm:text-xl font-bold text-brand-teal">Weekly Patient Registrations</h3>
+            <div className="p-2 bg-brand-teal/10 rounded-lg">
+              <TrendingUp className="h-5 w-5 text-brand-teal" />
+            </div>
+          </div>
+          
+          <div className="space-y-3">
+            {weeksData.map((week, index) => {
+              const prevWeek = index > 0 ? weeksData[index - 1] : null;
+              const change = prevWeek ? week.count - prevWeek.count : 0;
+              const changePercent = prevWeek && prevWeek.count > 0 
+                ? ((change / prevWeek.count) * 100).toFixed(0) 
+                : '0';
+              const isCurrentWeek = index === weeksData.length - 1;
+              
+              return (
+                <div key={index} className={`${isCurrentWeek ? 'bg-brand-teal/5 p-3 rounded-lg border-2 border-brand-teal/20' : ''}`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-2">
+                      <span className={`text-xs font-medium ${isCurrentWeek ? 'text-brand-teal font-bold' : 'text-gray-600'}`}>
+                        {week.label} {isCurrentWeek && '(Current)'}
+                      </span>
+                      <span className="text-xs text-gray-400">
+                        {week.weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      </span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className={`text-lg font-bold ${isCurrentWeek ? 'text-brand-teal' : 'text-gray-900'}`}>
+                        {week.count}
+                      </span>
+                      {index > 0 && (
+                        <span className={`text-xs font-semibold px-2 py-0.5 rounded ${
+                          change > 0 
+                            ? 'bg-green-100 text-green-700' 
+                            : change < 0 
+                            ? 'bg-red-100 text-red-700' 
+                            : 'bg-gray-100 text-gray-600'
+                        }`}>
+                          {change > 0 ? '+' : ''}{change} ({changePercent}%)
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className={`h-2 rounded-full transition-all ${isCurrentWeek ? 'bg-brand-teal' : 'bg-gray-400'}`}
+                      style={{ width: `${Math.max((week.count / Math.max(...weeksData.map(w => w.count))) * 100, 5)}%` }}
+                    ></div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Summary */}
+          <div className="mt-4 pt-4 border-t border-gray-100">
+            <div className="flex justify-between items-center text-xs text-gray-600">
+              <span>8-Week Average:</span>
+              <span className="font-bold text-brand-teal">
+                {(weeksData.reduce((sum, w) => sum + w.count, 0) / weeksData.length).toFixed(1)} patients/week
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 

@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 // FIX: Import React to use React.FC and other React features.
 import React, { useState } from 'react';
 import ReportsUploader from './ReportsUploader';
-import MedicineInput from './MedicineInput';
+import MedicineInputStructured from './MedicineInputStructured';
 import ConditionInput from './ConditionInput';
 // FIX: Switched to a named type import to resolve module resolution issues.
 import type { Patient } from '@prisma/client';
@@ -257,7 +257,7 @@ const PatientForm: React.FC<PatientFormProps> = ({ defaultValues, appointmentId 
                 <ConditionInput name="signs" label="Signs & Symptoms" error={errors.signs} placeholder="e.g., Fever, Cough, Headache (type to see suggestions)..." />
                 <Textarea name="investigations" label="Investigations" register={register} error={errors.investigations} placeholder="e.g., CBC, X-Ray Chest..."/>
                 <Textarea name="treatment" label="Treatment" register={register} error={errors.treatment} placeholder="e.g., Oxygen therapy, bed rest..."/>
-                <MedicineInput name="medicines" label="Medicines" error={errors.medicines} placeholder="Start typing medicine name or select from suggestions..." />
+                <MedicineInputStructured name="medicines" label="Medicines" error={errors.medicines} />
                 <Textarea name="history" label="Medical History / Summary" register={register} error={errors.history} placeholder="e.g., History of hypertension..."/>
             </div>
         </div>

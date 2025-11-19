@@ -19,6 +19,7 @@ export async function GET(
       include: {
         visits: {
           orderBy: { visitDate: 'desc' },
+          include: { medications: true },
         },
       },
     });
@@ -65,6 +66,7 @@ export async function PUT(
       include: {
         visits: {
           orderBy: { visitDate: 'desc' },
+          include: { medications: true },
         },
       },
     });

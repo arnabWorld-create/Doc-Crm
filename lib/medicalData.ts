@@ -183,11 +183,13 @@ export const commonMedicines = [
   // Your clinic's brand names
   'Prixicam',
   'Becocnx 60K',
+  'Becoprx 60K',
   'Escnx LS 5',
   'CNXCLAV',
   'Betagold 24',
   'Bycine CD3',
   'Becocnx OD',
+  'Becoprx OD',
   'Gdmin D',
   'Biluracise M',
   

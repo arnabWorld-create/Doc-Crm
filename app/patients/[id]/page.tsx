@@ -245,17 +245,21 @@ export default function PatientDetailPage({ params }: PatientDetailPageProps) {
                       </div>
                     )}
 
-                    {visit.medicines && (
+                    {(visit.medications && visit.medications.length > 0) && (
                       <div className="bg-orange-50 p-4 rounded-lg md:col-span-2">
                         <h4 className="text-xs font-bold text-orange-700 uppercase mb-2 flex items-center">
                           <Pill className="h-4 w-4 mr-1" />
                           Medicines
                         </h4>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                          {visit.medicines.split('\n').filter((m: string) => m.trim()).map((med: string, idx: number) => (
+                          {visit.medications.map((med: any, idx: number) => (
                             <div key={idx} className="flex items-start space-x-2">
                               <span className="text-orange-500 mt-0.5">•</span>
-                              <span className="text-sm text-gray-700">{med.trim()}</span>
+                              <span className="text-sm text-gray-700">
+                                {med.medicine}
+                                {med.dose && ` - ${med.dose}`}
+                                {med.frequency && ` (${med.frequency})`}
+                              </span>
                             </div>
                           ))}
                         </div>

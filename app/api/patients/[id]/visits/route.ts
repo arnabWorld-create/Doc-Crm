@@ -76,8 +76,40 @@ export async function POST(
 
 
 
-    const visit = await prisma.visit.create({
-      data: visitData,
+    // Create visit with medications in a transaction
+    const visit = await prisma.$transaction(async (tx) => {
+      // Create the visit
+      const newVisit = await tx.visit.create({
+        data: visitData,
+      });
+
+      // Create medications if provided
+      if (body.medications && Array.isArray(body.medications)) {
+        const medicationsToCreate = body.medications
+          .filter((med: any) => med.name && med.name.trim())
+          .map((med: any) => ({
+            visitId: newVisit.id,
+            medicine: med.name.trim(),
+            dose: med.dose || null,
+            frequency: med.frequency || null,
+            timing: med.timing || null,
+            duration: med.duration || null,
+            startFrom: med.startFrom || null,
+            instructions: med.instructions || null,
+          }));
+
+        if (medicationsToCreate.length > 0) {
+          await tx.medication.createMany({
+            data: medicationsToCreate,
+          });
+        }
+      }
+
+      // Return visit with medications
+      return tx.visit.findUnique({
+        where: { id: newVisit.id },
+        include: { medications: true },
+      });
     });
 
 

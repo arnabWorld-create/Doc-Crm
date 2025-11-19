@@ -14,6 +14,9 @@ export async function GET(
         id: params.visitId,
         patientId: params.id,
       },
+      include: {
+        medications: true,
+      },
     });
 
     if (!visit) {
@@ -41,27 +44,63 @@ export async function PUT(
   try {
     const body = await req.json();
 
-    const visit = await prisma.visit.update({
-      where: {
-        id: params.visitId,
-        patientId: params.id,
-      },
-      data: {
-        visitDate: new Date(body.visitDate),
-        visitType: body.visitType,
-        chiefComplaint: body.chiefComplaint || null,
-        signs: body.signs || null,
-        diagnosis: body.diagnosis || null,
-        treatment: body.treatment || null,
-        medicines: body.medicines || null,
-        temp: body.temp ? parseFloat(body.temp) : null,
-        spo2: body.spo2 ? parseInt(body.spo2) : null,
-        pulse: body.pulse ? parseInt(body.pulse) : null,
-        bloodPressure: body.bloodPressure || null,
-        followUpDate: body.followUpDate ? new Date(body.followUpDate) : null,
-        followUpNotes: body.followUpNotes || null,
-        reports: body.reports ? JSON.stringify(body.reports) : null,
-      },
+    const visit = await prisma.$transaction(async (tx) => {
+      // Update the visit
+      const updatedVisit = await tx.visit.update({
+        where: {
+          id: params.visitId,
+          patientId: params.id,
+        },
+        data: {
+          visitDate: new Date(body.visitDate),
+          visitType: body.visitType,
+          chiefComplaint: body.chiefComplaint || null,
+          signs: body.signs || null,
+          diagnosis: body.diagnosis || null,
+          treatment: body.treatment || null,
+          medicines: body.medicines || null,
+          temp: body.temp ? parseFloat(body.temp) : null,
+          spo2: body.spo2 ? parseInt(body.spo2) : null,
+          pulse: body.pulse ? parseInt(body.pulse) : null,
+          bloodPressure: body.bloodPressure || null,
+          followUpDate: body.followUpDate ? new Date(body.followUpDate) : null,
+          followUpNotes: body.followUpNotes || null,
+          reports: body.reports ? JSON.stringify(body.reports) : null,
+        },
+      });
+
+      // Delete existing medications
+      await tx.medication.deleteMany({
+        where: { visitId: params.visitId },
+      });
+
+      // Create new medications if provided
+      if (body.medications && Array.isArray(body.medications)) {
+        const medicationsToCreate = body.medications
+          .filter((med: any) => med.name && med.name.trim())
+          .map((med: any) => ({
+            visitId: params.visitId,
+            medicine: med.name.trim(),
+            dose: med.dose || null,
+            frequency: med.frequency || null,
+            timing: med.timing || null,
+            duration: med.duration || null,
+            startFrom: med.startFrom || null,
+            instructions: med.instructions || null,
+          }));
+
+        if (medicationsToCreate.length > 0) {
+          await tx.medication.createMany({
+            data: medicationsToCreate,
+          });
+        }
+      }
+
+      // Return visit with medications
+      return tx.visit.findUnique({
+        where: { id: params.visitId },
+        include: { medications: true },
+      });
     });
 
     return NextResponse.json(visit);

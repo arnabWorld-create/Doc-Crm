@@ -248,29 +248,35 @@ interface MedicineInputProps {
             {showSuggestions && filteredMedicines.length > 0 && (
               <div
                 ref={dropdownRef}
-                className="absolute z-10 w-full mt-1 bg-white border-2 border-brand-teal rounded-lg shadow-lg max-h-48 overflow-y-auto"
+                className="absolute z-10 w-full mt-2 bg-white border border-gray-300 rounded-lg shadow-xl max-h-64 overflow-y-auto"
               >
-                <div className="p-2">
-                  <p className="text-xs text-gray-500 mb-2 px-2">Suggested medicines (click to add):</p>
-                  {filteredMedicines.map((medicine, index) => (
-                    <button
-                      key={index}
-                      type="button"
-                      onMouseDown={(e) => {
-                        e.preventDefault(); // Prevent losing focus
-                        handleSelectMedicine(medicine, value, onChange);
-                      }}
-                      onMouseEnter={() => setSelectedIndex(index)}
-                      className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors ${
-                        index === selectedIndex
-                          ? 'bg-brand-teal text-white'
-                          : 'hover:bg-brand-teal hover:text-white'
-                      }`}
-                    >
-                      {medicine}
-                    </button>
-                  ))}
-                </div>
+                {filteredMedicines.map((medicine, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      handleSelectMedicine(medicine, value, onChange);
+                    }}
+                    onMouseEnter={() => setSelectedIndex(index)}
+                    className={`w-full text-left px-4 py-3 border-b border-gray-100 last:border-b-0 transition-colors flex items-start gap-3 ${
+                      index === selectedIndex
+                        ? 'bg-blue-50'
+                        : 'hover:bg-gray-50'
+                    }`}
+                  >
+                    <div className="flex-shrink-0 mt-0.5">
+                      <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center">
+                        <span className="text-xs font-bold text-red-600">Mx</span>
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-gray-900 text-sm">
+                        {medicine}
+                      </p>
+                    </div>
+                  </button>
+                ))}
               </div>
             )}
           </div>

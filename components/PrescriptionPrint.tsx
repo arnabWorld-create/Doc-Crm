@@ -2,7 +2,7 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import { useReactToPrint } from 'react-to-print';
-import { Printer, Download } from 'lucide-react';
+import { Printer } from 'lucide-react';
 
 interface ClinicProfile {
   clinicName?: string | null;
@@ -22,6 +22,17 @@ interface ClinicProfile {
   logo?: string | null;
 }
 
+interface Medication {
+  id: string;
+  medicine: string;
+  dose?: string | null;
+  frequency?: string | null;
+  timing?: string | null;
+  duration?: string | null;
+  startFrom?: string | null;
+  instructions?: string | null;
+}
+
 interface Visit {
   id: string;
   visitDate: Date;
@@ -31,6 +42,7 @@ interface Visit {
   diagnosis?: string | null;
   treatment?: string | null;
   medicines?: string | null;
+  medications?: Medication[];
   temp?: number | null;
   spo2?: number | null;
   pulse?: number | null;
@@ -284,7 +296,7 @@ const PrescriptionPrint: React.FC<PrescriptionPrintProps> = ({ patient, visit })
                   {clinicProfile?.phone && clinicProfile?.email && ' | '}
                   {clinicProfile?.email && `✉️ ${clinicProfile.email}`}
                 </div>
-                {clinicProfile?.workingHours && <div>🕐 {clinicProfile.workingHours}</div>}
+                <div>🕐 Mon - Fri: 9:30 AM - 1:00 PM & 5:30 PM - 8:00 PM</div>
                 {clinicProfile?.website && <div>🌐 {clinicProfile.website}</div>}
               </div>
             </div>
@@ -396,14 +408,23 @@ const PrescriptionPrint: React.FC<PrescriptionPrintProps> = ({ patient, visit })
           )}
 
           {/* Medicines (Rx) */}
-          {visit.medicines && (
+          {(visit.medications && visit.medications.length > 0) && (
             <div className="section">
               <div className="section-title">℞ Prescription</div>
               <div className="medicines-list">
-                {visit.medicines.split('\n').filter(m => m.trim()).map((medicine, index) => (
+                {visit.medications.map((med: any, index: number) => (
                   <div key={index} className="medicine-item">
                     <div className="medicine-number">{index + 1}</div>
-                    <div>{medicine.trim()}</div>
+                    <div>
+                      <strong>{med.medicine}</strong>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginTop: '4px', fontSize: '14px' }}>
+                        {med.dose && <span>Dose: {med.dose}</span>}
+                        {med.frequency && <span>Frequency: {med.frequency}</span>}
+                        {med.timing && <span>Timing: {med.timing}</span>}
+                        {med.duration && <span>Duration: {med.duration}</span>}
+                      </div>
+                      {med.instructions && <div style={{ marginTop: '4px', fontSize: '14px' }}>Instructions: {med.instructions}</div>}
+                    </div>
                   </div>
                 ))}
               </div>
