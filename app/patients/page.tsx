@@ -2,6 +2,9 @@ import PatientTable from '@/components/PatientTable';
 import prisma from '@/lib/prisma';
 import { Suspense } from 'react';
 
+// Cache patients page for 2 minutes
+export const revalidate = 120;
+
 interface PatientsPageProps {
   searchParams?: {
     search?: string;
@@ -66,12 +69,28 @@ const PatientsPage = async ({ searchParams }: PatientsPageProps) => {
 
   const patients = await prisma.patient.findMany({
     where: whereClause,
-    include: {
+    select: {
+      id: true,
+      patientId: true,
+      name: true,
+      age: true,
+      gender: true,
+      contact: true,
+      address: true,
+      bloodGroup: true,
+      createdAt: true,
+      updatedAt: true,
+      _count: {
+        select: { visits: true },
+      },
       visits: {
+        select: {
+          visitDate: true,
+        },
         orderBy: {
           visitDate: 'desc',
         },
-        // Get all visits for accurate count (first one is latest for display)
+        take: 1, // Only get the latest visit for display
       },
     },
     skip: (currentPage - 1) * perPage,

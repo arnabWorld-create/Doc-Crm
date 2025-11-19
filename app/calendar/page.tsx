@@ -1,6 +1,9 @@
 import prisma from '@/lib/prisma';
 import CalendarView from '@/components/CalendarView';
 
+// Cache calendar for 5 minutes
+export const revalidate = 300;
+
 interface CalendarPageProps {
   searchParams?: {
     month?: string;
@@ -17,30 +20,59 @@ const CalendarPage = async ({ searchParams }: CalendarPageProps) => {
   const firstDay = new Date(currentYear, currentMonth, 1);
   const lastDay = new Date(currentYear, currentMonth + 1, 0);
 
-  // Fetch all visits with dates in this month
-  const visits = await prisma.visit.findMany({
-    where: {
-      visitDate: {
-        gte: firstDay,
-        lte: lastDay,
-      },
-    },
-    include: {
-      patient: {
-        select: {
-          id: true,
-          patientId: true,
-          name: true,
-          age: true,
-          gender: true,
-          contact: true,
+  // Batch both queries for better performance
+  const [visits, followUpVisits] = await Promise.all([
+    // Fetch visits with dates in this month
+    prisma.visit.findMany({
+      where: {
+        visitDate: {
+          gte: firstDay,
+          lte: lastDay,
         },
       },
-    },
-    orderBy: {
-      visitDate: 'asc',
-    },
-  });
+      select: {
+        visitDate: true,
+        patient: {
+          select: {
+            id: true,
+            patientId: true,
+            name: true,
+            age: true,
+            gender: true,
+            contact: true,
+          },
+        },
+      },
+      orderBy: {
+        visitDate: 'asc',
+      },
+    }),
+    // Fetch visits with follow-up dates in this month
+    prisma.visit.findMany({
+      where: {
+        followUpDate: {
+          gte: firstDay,
+          lte: lastDay,
+        },
+      },
+      select: {
+        followUpDate: true,
+        patient: {
+          select: {
+            id: true,
+            patientId: true,
+            name: true,
+            age: true,
+            gender: true,
+            contact: true,
+          },
+        },
+      },
+      orderBy: {
+        followUpDate: 'asc',
+      },
+    }),
+  ]);
 
   // Transform visits to consultations format
   const consultations = visits.map(visit => ({
@@ -51,31 +83,6 @@ const CalendarPage = async ({ searchParams }: CalendarPageProps) => {
     contact: visit.patient.contact,
     consultationDate: visit.visitDate,
   }));
-
-  // Fetch all visits with follow-up dates in this month
-  const followUpVisits = await prisma.visit.findMany({
-    where: {
-      followUpDate: {
-        gte: firstDay,
-        lte: lastDay,
-      },
-    },
-    include: {
-      patient: {
-        select: {
-          id: true,
-          patientId: true,
-          name: true,
-          age: true,
-          gender: true,
-          contact: true,
-        },
-      },
-    },
-    orderBy: {
-      followUpDate: 'asc',
-    },
-  });
 
   // Transform follow-up visits
   const followUps = followUpVisits.map(visit => ({

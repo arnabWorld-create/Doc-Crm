@@ -10,9 +10,9 @@ import SearchInput from './SearchInput';
 import DateRangeFilter from './DateRangeFilter';
 
 interface Visit {
-  id: string;
+  id?: string;
   visitDate: Date;
-  visitType: string;
+  visitType?: string;
 }
 
 interface Patient {
@@ -23,6 +23,9 @@ interface Patient {
   gender: string | null;
   contact: string | null;
   visits: Visit[];
+  _count?: {
+    visits: number;
+  };
 }
 
 interface PatientTableProps {
@@ -65,7 +68,7 @@ const PatientTable: React.FC<PatientTableProps> = ({ patients, totalPatients, cu
     const patient = patients.find(p => p.id === selectedPatientId);
     if (!patient) return 'Are you sure you want to delete this patient?';
     
-    const visitCount = patient.visits.length;
+    const visitCount = patient._count?.visits || patient.visits.length;
     if (visitCount === 0) {
       return `Are you sure you want to delete ${patient.name}? This action cannot be undone.`;
     }
@@ -164,7 +167,7 @@ const PatientTable: React.FC<PatientTableProps> = ({ patients, totalPatients, cu
                 )}
                 <div className="flex items-center text-gray-600">
                   <span className="font-medium w-24">Total Visits:</span>
-                  <span className="font-bold text-brand-teal">{patient.visits.length}</span>
+                  <span className="font-bold text-brand-teal">{patient._count?.visits || patient.visits.length}</span>
                 </div>
               </div>
               <div className="flex items-center justify-end space-x-2 pt-3 border-t border-gray-100">
@@ -242,7 +245,7 @@ const PatientTable: React.FC<PatientTableProps> = ({ patients, totalPatients, cu
                     {lastVisit ? new Date(lastVisit.visitDate).toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'No visits'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-sm font-bold text-brand-teal">{patient.visits.length}</span>
+                    <span className="text-sm font-bold text-brand-teal">{patient._count?.visits || patient.visits.length}</span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex items-center justify-end space-x-2">
