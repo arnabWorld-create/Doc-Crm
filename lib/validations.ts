@@ -37,7 +37,6 @@ export const patientSchema = z.object({
   pulse: z.coerce.number().int().optional().nullable(),
   treatment: z.string().optional().nullable(),
   medicines: z.string().optional().nullable(),
-  medications: z.array(medicationSchema).optional().nullable(),
   notes: z.string().optional().nullable(),
   history: z.string().optional().nullable(),
   reports: z.array(reportFileSchema).optional().nullable(),
@@ -46,4 +45,26 @@ export const patientSchema = z.object({
   followUpDate: z.string().optional().nullable(),
 });
 
+export const visitSchema = z.object({
+  visitDate: z.string(),
+  visitType: z.string(),
+  chiefComplaint: z.string().optional(),
+  signs: z.string().optional(),
+  investigations: z.string().optional(),
+  diagnosis: z.string().optional(),
+  treatment: z.string().optional(),
+  medicines: z.string().optional().nullable(),
+  medications: z.array(medicationSchema).optional().nullable(),
+  temp: z.string().optional(),
+  spo2: z.string().optional(),
+  pulse: z.string().optional(),
+  bloodPressure: z.string().optional(),
+  notes: z.string().optional(),
+  followUpDate: z.string().optional(),
+  followUpNotes: z.string().optional(),
+  referredTo: z.string().optional(),
+  reports: z.string().optional(),
+});
+
 export type PatientFormData = z.infer<typeof patientSchema>;
+export type VisitFormData = z.infer<typeof visitSchema>;
