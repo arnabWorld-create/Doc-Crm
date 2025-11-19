@@ -211,7 +211,7 @@ const MedicineInputStructured: React.FC<MedicineInputStructuredProps> = ({ name,
                                 }
                               }
                             }}
-                            placeholder="e.g. Dolo 650"
+                            placeholder="e.g. Bycine CD3"
                             className="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-brand-teal focus:ring-1 focus:ring-brand-teal/20 outline-none"
                           />
                           {showSuggestions[medicine.id] && filteredMedicines[medicine.id]?.length > 0 && (
@@ -388,7 +388,7 @@ const MedicineInputStructured: React.FC<MedicineInputStructuredProps> = ({ name,
                             setShowSuggestions(prev => ({ ...prev, [medicine.id]: false }));
                           }, 200);
                         }}
-                        placeholder="e.g. Dolo 650"
+                        placeholder="e.g. Bycine CD3"
                         className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20 outline-none"
                       />
                       {showSuggestions[medicine.id] && filteredMedicines[medicine.id]?.length > 0 && (

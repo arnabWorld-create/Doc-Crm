@@ -6,6 +6,17 @@ export const reportFileSchema = z.object({
   uploadedAt: z.string().datetime(),
 });
 
+export const medicationSchema = z.object({
+  id: z.string(),
+  name: z.string().min(1, { message: "Medicine name is required" }),
+  dose: z.string().optional().nullable(),
+  frequency: z.string().optional().nullable(),
+  timing: z.string().optional().nullable(),
+  duration: z.string().optional().nullable(),
+  startFrom: z.string().optional().nullable(),
+  instructions: z.string().optional().nullable(),
+});
+
 export const patientSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   age: z.coerce.number().int().positive().optional().nullable(),
@@ -26,6 +37,7 @@ export const patientSchema = z.object({
   pulse: z.coerce.number().int().optional().nullable(),
   treatment: z.string().optional().nullable(),
   medicines: z.string().optional().nullable(),
+  medications: z.array(medicationSchema).optional().nullable(),
   notes: z.string().optional().nullable(),
   history: z.string().optional().nullable(),
   reports: z.array(reportFileSchema).optional().nullable(),
