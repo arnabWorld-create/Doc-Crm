@@ -1,23 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuthUser } from '@/lib/auth';
+import { verifyToken } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 
-export const dynamic = 'force-dynamic';
+// Cache user info for 5 minutes
+export const revalidate = 300;
 
 export async function GET(request: NextRequest) {
   try {
-    const authUser = await getAuthUser();
+    // Get token from cookie
+    const token = request.cookies.get('auth-token')?.value;
 
-    if (!authUser) {
+    if (!token) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Not authenticated' },
         { status: 401 }
       );
     }
 
-    // Get full user data
+    // Verify token
+    const decoded = verifyToken(token);
+    if (!decoded) {
+      return NextResponse.json(
+        { error: 'Invalid token' },
+        { status: 401 }
+      );
+    }
+
+    // Fetch user from database
     const user = await prisma.user.findUnique({
-      where: { id: authUser.userId },
+      where: { id: decoded.userId },
       select: {
         id: true,
         email: true,
@@ -28,19 +39,21 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    if (!user) {
+    if (!user || !user.isActive) {
       return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
+        { error: 'User not found or inactive' },
+        { status: 401 }
       );
     }
 
-    return NextResponse.json({ user }, { status: 200 });
-  } catch (error) {
-    console.error('Get user error:', error);
+    return NextResponse.json({
+      user,
+    });
+  } catch (error: any) {
+    console.error('Auth check error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      { error: 'Authentication failed' },
+      { status: 401 }
     );
   }
 }
