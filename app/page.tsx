@@ -8,7 +8,7 @@ import {
   Star, Calendar, Clock, MapPin, Phone, Mail, LogIn, Menu,
   Award, Heart, Users, TrendingUp, Activity, Droplet, Eye, 
   Shield, Stethoscope, Syringe, Pill, Quote, MessageCircle,
-  Instagram
+  Instagram, Video
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -274,7 +274,7 @@ function ServicesSection() {
     { icon: Shield, title: "Infectious Disease Treatment", description: "Treatment for Malaria, Dengue, and other viral infections." },
     { icon: Heart, title: "Gastroenteritis Treatment", description: "Digestive system care and abdominal pain management." },
     { icon: Syringe, title: "Travel Vaccination", description: "Pre-travel health consultation and required immunizations." },
-    { icon: Eye, title: "Contact Lens Prescription", description: "Professional eye examination and contact lens fitting." },
+    { icon: Video, title: "Online Consultation", description: "Contact-less prescription and remote healthcare consultations." },
     { icon: Pill, title: "Preventive Healthcare", description: "Regular health screenings and wellness consultations." }
   ];
 

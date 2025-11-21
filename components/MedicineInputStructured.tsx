@@ -267,12 +267,20 @@ const MedicineInputStructured: React.FC<MedicineInputStructuredProps> = ({ name,
                         />
                       </td>
 
-                      {/* Frequency */}
+                      {/* Frequency - Text Input (Dropdown hidden for future use) */}
                       <td className="px-3 py-2">
+                        <input
+                          type="text"
+                          value={medicine.frequency}
+                          onChange={(e) => updateMedicine(medicine.id, 'frequency', e.target.value)}
+                          placeholder="e.g., 1-1-1"
+                          className="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-brand-teal focus:ring-1 focus:ring-brand-teal/20 outline-none"
+                        />
+                        {/* Hidden dropdown for future use */}
                         <select
                           value={medicine.frequency}
                           onChange={(e) => updateMedicine(medicine.id, 'frequency', e.target.value)}
-                          className="w-full px-2 py-1.5 text-xs border border-gray-300 rounded focus:border-brand-teal focus:ring-1 focus:ring-brand-teal/20 outline-none"
+                          className="hidden"
                         >
                           <option value="">Select</option>
                           <option value="1-1-1">1-1-1</option>
@@ -432,10 +440,18 @@ const MedicineInputStructured: React.FC<MedicineInputStructuredProps> = ({ name,
                       </div>
                       <div>
                         <label className="block text-xs font-medium text-gray-700 mb-1">Frequency</label>
+                        <input
+                          type="text"
+                          value={medicine.frequency}
+                          onChange={(e) => updateMedicine(medicine.id, 'frequency', e.target.value)}
+                          placeholder="e.g., 1-1-1"
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-teal outline-none"
+                        />
+                        {/* Hidden dropdown for future use */}
                         <select
                           value={medicine.frequency}
                           onChange={(e) => updateMedicine(medicine.id, 'frequency', e.target.value)}
-                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-teal outline-none"
+                          className="hidden"
                         >
                           <option value="">Select</option>
                           <option value="1-1-1">1-1-1</option>
