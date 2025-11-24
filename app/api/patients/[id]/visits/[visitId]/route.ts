@@ -45,28 +45,45 @@ export async function PUT(
     const body = await req.json();
 
     const visit = await prisma.$transaction(async (tx) => {
+      // Parse blood pressure if provided as string
+      let bpSystolic = body.bpSystolic;
+      let bpDiastolic = body.bpDiastolic;
+      
+      if (body.bloodPressure && !bpSystolic && !bpDiastolic) {
+        const bpParts = body.bloodPressure.split('/');
+        if (bpParts.length === 2) {
+          bpSystolic = bpParts[0].trim();
+          bpDiastolic = bpParts[1].trim();
+        }
+      }
+
+      const updateData: any = {
+        visitDate: new Date(body.visitDate),
+        visitType: body.visitType,
+        chiefComplaint: body.chiefComplaint || null,
+        signs: body.signs || null,
+        diagnosis: body.diagnosis || null,
+        treatment: body.treatment || null,
+        medicines: body.medicines || null,
+        temp: body.temp ? parseFloat(body.temp) : null,
+        spo2: body.spo2 ? parseInt(body.spo2) : null,
+        pulse: body.pulse ? parseInt(body.pulse) : null,
+        bloodPressure: body.bloodPressure || null,
+        bpSystolic: bpSystolic ? parseInt(bpSystolic) : null,
+        bpDiastolic: bpDiastolic ? parseInt(bpDiastolic) : null,
+        rbs: body.rbs ? parseInt(body.rbs) : null,
+        followUpDate: body.followUpDate ? new Date(body.followUpDate) : null,
+        followUpNotes: body.followUpNotes || null,
+        reports: body.reports ? JSON.stringify(body.reports) : null,
+      };
+
       // Update the visit
       const updatedVisit = await tx.visit.update({
         where: {
           id: params.visitId,
           patientId: params.id,
         },
-        data: {
-          visitDate: new Date(body.visitDate),
-          visitType: body.visitType,
-          chiefComplaint: body.chiefComplaint || null,
-          signs: body.signs || null,
-          diagnosis: body.diagnosis || null,
-          treatment: body.treatment || null,
-          medicines: body.medicines || null,
-          temp: body.temp ? parseFloat(body.temp) : null,
-          spo2: body.spo2 ? parseInt(body.spo2) : null,
-          pulse: body.pulse ? parseInt(body.pulse) : null,
-          bloodPressure: body.bloodPressure || null,
-          followUpDate: body.followUpDate ? new Date(body.followUpDate) : null,
-          followUpNotes: body.followUpNotes || null,
-          reports: body.reports ? JSON.stringify(body.reports) : null,
-        },
+        data: updateData,
       });
 
       // Delete existing medications

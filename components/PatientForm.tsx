@@ -9,6 +9,7 @@ import React, { useState } from 'react';
 import ReportsUploader from './ReportsUploader';
 import MedicineInputStructured from './MedicineInputStructured';
 import ConditionInput from './ConditionInput';
+import BPInput from './BPInput';
 // FIX: Switched to a named type import to resolve module resolution issues.
 import type { Patient } from '@prisma/client';
 
@@ -259,10 +260,12 @@ const PatientForm: React.FC<PatientFormProps> = ({ defaultValues, appointmentId 
               </div>
               <h3 className="text-lg sm:text-xl font-bold text-brand-red">Vitals</h3>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 <Input name="temp" label="Temperature (°F)" register={register} error={errors.temp} placeholder="98.6" type="number" step="0.1" />
                 <Input name="spo2" label="SpO2 (%)" register={register} error={errors.spo2} placeholder="98" type="number" />
                 <Input name="pulse" label="Pulse (bpm)" register={register} error={errors.pulse} placeholder="72" type="number" />
+                <BPInput name="bloodPressure" label="Blood Pressure (mmHg)" register={register} error={errors.bloodPressure} placeholder="120/80" />
+                <Input name="rbs" label="RBS (mg/dl)" register={register} error={errors.rbs} placeholder="100" type="number" />
             </div>
         </div>
 

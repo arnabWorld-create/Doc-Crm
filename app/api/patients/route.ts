@@ -81,10 +81,8 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    
     // Generate patient ID
     const patientId = await generatePatientId();
-
 
     // Separate patient info from visit info
     const { name, age, gender, contact, address, bloodGroup, allergies, chronicConditions, ...visitData } = body;
@@ -125,6 +123,20 @@ export async function POST(req: NextRequest) {
       if (!isNaN(weightNum)) visitCreateData.weight = weightNum;
     }
 
+    // Handle new vital fields
+    if (visitData.bpSystolic && visitData.bpSystolic !== '') {
+      const bpSystolicNum = parseInt(visitData.bpSystolic);
+      if (!isNaN(bpSystolicNum)) visitCreateData.bpSystolic = bpSystolicNum;
+    }
+    if (visitData.bpDiastolic && visitData.bpDiastolic !== '') {
+      const bpDiastolicNum = parseInt(visitData.bpDiastolic);
+      if (!isNaN(bpDiastolicNum)) visitCreateData.bpDiastolic = bpDiastolicNum;
+    }
+    if (visitData.rbs && visitData.rbs !== '') {
+      const rbsNum = parseInt(visitData.rbs);
+      if (!isNaN(rbsNum)) visitCreateData.rbs = rbsNum;
+    }
+
     // Handle reports - convert array to JSON string
     if (visitData.reports && Array.isArray(visitData.reports) && visitData.reports.length > 0) {
       visitCreateData.reports = JSON.stringify(visitData.reports);
@@ -134,6 +146,11 @@ export async function POST(req: NextRequest) {
     if (visitData.followUpDate && visitData.followUpDate !== '') {
       visitCreateData.followUpDate = new Date(visitData.followUpDate);
     }
+
+    // Filter out empty medicines (only include if name is provided)
+    const validMedications = visitData.medications && Array.isArray(visitData.medications)
+      ? visitData.medications.filter((med: any) => med.name && med.name.trim())
+      : [];
 
     // Create patient with first visit
     const patient = await prisma.patient.create({
@@ -151,10 +168,10 @@ export async function POST(req: NextRequest) {
           create: {
             ...visitCreateData,
             // Create medications if provided
-            medications: visitData.medications && Array.isArray(visitData.medications) && visitData.medications.length > 0
+            medications: validMedications.length > 0
               ? {
-                  create: visitData.medications.map((med: any) => ({
-                    medicine: med.name || '',
+                  create: validMedications.map((med: any) => ({
+                    medicine: med.name.trim(),
                     dose: med.dose || null,
                     frequency: med.frequency || null,
                     timing: med.timing || null,

@@ -58,7 +58,10 @@ model Visit {
   temp              Float?
   spo2              Int?
   pulse             Int?
-  bloodPressure     String?
+  bloodPressure     String?    // e.g., "120/80"
+  bpSystolic        Int?       // Systolic BP (mmHg)
+  bpDiastolic       Int?       // Diastolic BP (mmHg)
+  rbs               Int?       // Random Blood Sugar (mg/dl)
   weight            Float?
   
   // Medical Details

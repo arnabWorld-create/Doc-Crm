@@ -7,6 +7,7 @@ import ReportsUploader from './ReportsUploader';
 import MedicineInput from './MedicineInput';
 import MedicineInputStructured from './MedicineInputStructured';
 import ConditionInput from './ConditionInput';
+import BPInput from './BPInput';
 
 interface VisitFormProps {
   patientId: string;
@@ -40,6 +41,9 @@ interface VisitFormData {
   spo2?: string;
   pulse?: string;
   bloodPressure?: string;
+  bpSystolic?: string;
+  bpDiastolic?: string;
+  rbs?: string;
   notes?: string;
   followUpDate?: string;
   followUpNotes?: string;
@@ -111,6 +115,12 @@ const VisitForm: React.FC<VisitFormProps> = ({ patientId, initialData, onSubmit:
           }))
         : [{ id: Date.now().toString(), name: '', dose: '', frequency: '', timing: '', duration: '', startFrom: '', instructions: '' }];
 
+      // Build blood pressure string from systolic/diastolic if available
+      let bpString = initialData.bloodPressure || '';
+      if (initialData.bpSystolic && initialData.bpDiastolic) {
+        bpString = `${initialData.bpSystolic}/${initialData.bpDiastolic}`;
+      }
+
       return {
         visitDate: initialData.visitDate ? new Date(initialData.visitDate).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
         visitType: initialData.visitType || 'Consultation',
@@ -123,7 +133,10 @@ const VisitForm: React.FC<VisitFormProps> = ({ patientId, initialData, onSubmit:
         temp: initialData.temp?.toString() || '',
         spo2: initialData.spo2?.toString() || '',
         pulse: initialData.pulse?.toString() || '',
-        bloodPressure: initialData.bloodPressure || '',
+        bloodPressure: bpString,
+        bpSystolic: initialData.bpSystolic?.toString() || '',
+        bpDiastolic: initialData.bpDiastolic?.toString() || '',
+        rbs: initialData.rbs?.toString() || '',
         followUpDate: initialData.followUpDate ? new Date(initialData.followUpDate).toISOString().split('T')[0] : '',
         followUpNotes: initialData.followUpNotes || '',
       };
@@ -210,11 +223,12 @@ const VisitForm: React.FC<VisitFormProps> = ({ patientId, initialData, onSubmit:
         {/* Vitals */}
         <div className="bg-white p-4 sm:p-6 md:p-8 rounded-xl shadow-lg border-2 border-gray-100">
           <h3 className="text-lg sm:text-xl font-bold text-brand-red mb-4">Vitals</h3>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             <Input name="temp" label="Temperature (°F)" register={register} error={errors.temp} placeholder="98.6" type="number" step="0.1" />
             <Input name="spo2" label="SpO2 (%)" register={register} error={errors.spo2} placeholder="98" type="number" />
             <Input name="pulse" label="Pulse (bpm)" register={register} error={errors.pulse} placeholder="72" type="number" />
-            <Input name="bloodPressure" label="BP (mmHg)" register={register} error={errors.bloodPressure} placeholder="120/80" type="text" />
+            <BPInput name="bloodPressure" label="Blood Pressure (mmHg)" register={register} error={errors.bloodPressure} placeholder="120/80" />
+            <Input name="rbs" label="RBS (mg/dl)" register={register} error={errors.rbs} placeholder="100" type="number" />
           </div>
         </div>
 

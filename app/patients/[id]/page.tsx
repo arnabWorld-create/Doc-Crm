@@ -267,14 +267,16 @@ export default function PatientDetailPage({ params }: PatientDetailPageProps) {
                     )}
 
                     {/* Vitals */}
-                    {(visit.temp || visit.spo2 || visit.pulse || visit.bloodPressure) && (
+                    {(visit.temp || visit.spo2 || visit.pulse || visit.bloodPressure || visit.bpSystolic || visit.bpDiastolic || visit.rbs) && (
                       <div className="bg-red-50 p-4 rounded-lg">
                         <h4 className="text-xs font-bold text-red-700 uppercase mb-2">Vitals</h4>
                         <div className="grid grid-cols-2 gap-2 text-sm">
                           {visit.temp && <div><span className="text-gray-600">Temp:</span> <span className="font-semibold">{visit.temp}°F</span></div>}
                           {visit.spo2 && <div><span className="text-gray-600">SpO2:</span> <span className="font-semibold">{visit.spo2}%</span></div>}
                           {visit.pulse && <div><span className="text-gray-600">Pulse:</span> <span className="font-semibold">{visit.pulse} bpm</span></div>}
-                          {visit.bloodPressure && <div><span className="text-gray-600">BP:</span> <span className="font-semibold">{visit.bloodPressure}</span></div>}
+                          {visit.bloodPressure && <div><span className="text-gray-600">BP:</span> <span className="font-semibold">{visit.bloodPressure} mmHg</span></div>}
+                          {visit.bpSystolic && visit.bpDiastolic && <div><span className="text-gray-600">BP:</span> <span className="font-semibold">{visit.bpSystolic}/{visit.bpDiastolic} mmHg</span></div>}
+                          {visit.rbs && <div><span className="text-gray-600">RBS:</span> <span className="font-semibold">{visit.rbs} mg/dl</span></div>}
                         </div>
                       </div>
                     )}

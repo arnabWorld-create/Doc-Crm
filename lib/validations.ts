@@ -8,7 +8,7 @@ export const reportFileSchema = z.object({
 
 export const medicationSchema = z.object({
   id: z.string(),
-  name: z.string().min(1, { message: "Medicine name is required" }),
+  name: z.string().optional().nullable(),
   dose: z.string().optional().nullable(),
   frequency: z.string().optional().nullable(),
   timing: z.string().optional().nullable(),
@@ -31,10 +31,13 @@ export const patientSchema = z.object({
   diagnosis: z.string().optional().nullable(),
   chiefComplaint: z.string().optional().nullable(),
   bloodPressure: z.string().optional().nullable(),
+  bpSystolic: z.coerce.number().int().optional().nullable(),
+  bpDiastolic: z.coerce.number().int().optional().nullable(),
   weight: z.coerce.number().optional().nullable(),
   temp: z.coerce.number().optional().nullable(),
   spo2: z.coerce.number().int().optional().nullable(),
   pulse: z.coerce.number().int().optional().nullable(),
+  rbs: z.coerce.number().int().optional().nullable(),
   treatment: z.string().optional().nullable(),
   medicines: z.string().optional().nullable(),
   medications: z.array(medicationSchema).optional().nullable(),

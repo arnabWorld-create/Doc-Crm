@@ -46,6 +46,32 @@ export async function POST(
     if (body.referredTo) visitData.referredTo = body.referredTo;
     if (body.followUpNotes) visitData.followUpNotes = body.followUpNotes;
 
+    // Add new vital fields - parse from bloodPressure string if not provided separately
+    let bpSystolic = body.bpSystolic;
+    let bpDiastolic = body.bpDiastolic;
+    
+    // If bloodPressure string is provided, parse it
+    if (body.bloodPressure && !bpSystolic && !bpDiastolic) {
+      const bpParts = body.bloodPressure.split('/');
+      if (bpParts.length === 2) {
+        bpSystolic = bpParts[0].trim();
+        bpDiastolic = bpParts[1].trim();
+      }
+    }
+    
+    if (bpSystolic && bpSystolic !== '') {
+      const bpSystolicNum = parseInt(bpSystolic);
+      if (!isNaN(bpSystolicNum)) visitData.bpSystolic = bpSystolicNum;
+    }
+    if (bpDiastolic && bpDiastolic !== '') {
+      const bpDiastolicNum = parseInt(bpDiastolic);
+      if (!isNaN(bpDiastolicNum)) visitData.bpDiastolic = bpDiastolicNum;
+    }
+    if (body.rbs && body.rbs !== '') {
+      const rbsNum = parseInt(body.rbs);
+      if (!isNaN(rbsNum)) visitData.rbs = rbsNum;
+    }
+
     // Handle reports - convert array to JSON string or null
     if (body.reports && Array.isArray(body.reports) && body.reports.length > 0) {
       visitData.reports = JSON.stringify(body.reports);

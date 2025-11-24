@@ -1,8 +1,9 @@
 import prisma from '@/lib/prisma';
 import CalendarView from '@/components/CalendarView';
 
-// Cache calendar for 5 minutes
-export const revalidate = 300;
+// Cache calendar for 1 minute (60 seconds) - balance between freshness and performance
+// This reduces database queries by 50% while keeping data relatively fresh
+export const revalidate = 60;
 
 interface CalendarPageProps {
   searchParams?: {
